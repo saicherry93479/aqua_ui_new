@@ -1,6 +1,8 @@
 import React, { useLayoutEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { useNavigation } from 'expo-router';
+import { useNavigation, router } from 'expo-router';
+import { SheetManager } from 'react-native-actions-sheet';
+import { SHEET_IDS } from '../sheets';
 import Svg, { Path, Circle, Polyline } from 'react-native-svg';
 
 // Custom SVG Components
@@ -120,9 +122,24 @@ const ProfileScreen = () => {
         },
         {
             icon: HelpCircleIcon,
-            title: 'Help & Support',
+            title: 'Help & Support', 
             subtitle: 'Get help and contact support',
-            onPress: () => console.log('Help & Support')
+            onPress: () => router.push('/(connect)/help-support')
+        },
+        {
+            icon: LogOutIcon,
+            title: 'Cancel Subscription',
+            subtitle: 'Cancel your current subscription',
+            onPress: () => {
+                SheetManager.show(SHEET_IDS.CANCEL_SUBSCRIPTION_SHEET, {
+                    payload: {
+                        onCancel: (reason) => {
+                            console.log('Subscription cancelled with reason:', reason);
+                            // Handle cancellation logic here
+                        }
+                    }
+                });
+            }
         }
     ];
 
@@ -133,9 +150,6 @@ const ProfileScreen = () => {
                     {/* Profile Header */}
                     <View className="bg-white rounded-2xl shadow-sm p-6">
                         <View className="items-center mb-6">
-                            <View className="w-20 h-20 bg-[#4548b9] rounded-full items-center justify-center mb-4">
-                                <UserIcon size={32} color="white" />
-                            </View>
                             <Text className="text-2xl text-gray-900 mb-1" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
                                 {userInfo.name}
                             </Text>
