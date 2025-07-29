@@ -8,10 +8,7 @@ import {
   Alert,
   Keyboard,
 } from 'react-native';
-import {
-  X,
-  AlertTriangle,
-} from 'lucide-react-native';
+import { X, TriangleAlert as AlertTriangle } from 'lucide-react-native';
 import { GlobalLoader } from '../GlobalLoader';
 
 interface CancelSubscriptionActionSheetProps {
