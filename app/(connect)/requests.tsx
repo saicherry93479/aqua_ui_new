@@ -1,6 +1,8 @@
 import React, { useState, useLayoutEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Modal, TextInput, Alert } from 'react-native';
 import { useNavigation } from 'expo-router';
+import { SheetManager } from 'react-native-actions-sheet';
+import { SHEET_IDS } from '../sheets';
 import Svg, { Path, Circle } from 'react-native-svg';
 
 // Custom SVG Components
@@ -168,7 +170,16 @@ const ServicesScreen = () => {
                     {/* Request Service Button */}
                     <TouchableOpacity
                         className="bg-[#4548b9] rounded-2xl p-6 shadow-lg"
-                        onPress={() => setShowRequestModal(true)}
+                        onPress={() => {
+                            SheetManager.show(SHEET_IDS.SERVICE_REQUEST_SHEET, {
+                                payload: {
+                                    onSubmit: (data) => {
+                                        console.log('Service request submitted:', data);
+                                        // Handle the submitted data here
+                                    }
+                                }
+                            });
+                        }}
                     >
                         <View className="flex-row items-center justify-between">
                             <View className="flex-1">
@@ -194,7 +205,10 @@ const ServicesScreen = () => {
                             <View className="gap-y-3">
                                 {currentRequests.map((request) => (
                                     <View key={request.id} className="bg-white rounded-xl shadow-sm p-5">
-                                        <View className="flex-row items-start justify-between mb-3">
+                                        <TouchableOpacity 
+                                            className="flex-row items-start justify-between mb-3"
+                                            onPress={() => router.push(`/(connect)/service-detail/${request.id}`)}
+                                        >
                                             <View className="flex-1">
                                                 <Text className="text-lg text-gray-900 mb-1" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
                                                     {request.type}
@@ -208,7 +222,7 @@ const ServicesScreen = () => {
                                                     {request.status}
                                                 </Text>
                                             </View>
-                                        </View>
+                                        </TouchableOpacity>
                                         
                                         <View className="bg-blue-50 rounded-lg p-3">
                                             <Text className="text-sm text-blue-900 mb-1" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
@@ -235,7 +249,10 @@ const ServicesScreen = () => {
                         <View className="gap-y-3">
                             {serviceHistory.map((service) => (
                                 <View key={service.id} className="bg-white rounded-xl shadow-sm p-5">
-                                    <View className="flex-row items-start gap-4">
+                                    <TouchableOpacity 
+                                        className="flex-row items-start gap-4"
+                                        onPress={() => router.push(`/(connect)/service-detail/${service.id}`)}
+                                    >
                                         <View className="w-12 h-12 rounded-full bg-green-50 items-center justify-center">
                                             {getStatusIcon(service.status)}
                                         </View>
@@ -257,119 +274,13 @@ const ServicesScreen = () => {
                                                 {service.description}
                                             </Text>
                                         </View>
-                                    </View>
+                                    </TouchableOpacity>
                                 </View>
                             ))}
                         </View>
                     </View>
                 </View>
             </ScrollView>
-
-            {/* Service Request Modal */}
-            <Modal
-                visible={showRequestModal}
-                animationType="slide"
-                presentationStyle="pageSheet"
-                onRequestClose={() => setShowRequestModal(false)}
-            >
-                <View className="flex-1 bg-white">
-                    {/* Header */}
-                    <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
-                        <Text className="text-xl text-gray-900" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
-                            Request Service
-                        </Text>
-                        <TouchableOpacity onPress={() => setShowRequestModal(false)}>
-                            <XIcon size={24} color="#6B7280" />
-                        </TouchableOpacity>
-                    </View>
-
-                    <ScrollView className="flex-1 p-4">
-                        {/* Service Type Selection */}
-                        <View className="mb-6">
-                            <Text className="text-lg text-gray-900 mb-3" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
-                                Select Service Type
-                            </Text>
-                            <View className="gap-3">
-                                {serviceTypes.map((type) => {
-                                    const IconComponent = type.icon;
-                                    const isSelected = selectedServiceType === type.id;
-                                    
-                                    return (
-                                        <TouchableOpacity
-                                            key={type.id}
-                                            className={`p-4 rounded-xl border-2 ${
-                                                isSelected 
-                                                    ? 'border-[#4548b9] bg-blue-50' 
-                                                    : 'border-gray-200 bg-white'
-                                            }`}
-                                            onPress={() => setSelectedServiceType(type.id)}
-                                        >
-                                            <View className="flex-row items-center gap-3">
-                                                <IconComponent 
-                                                    size={24} 
-                                                    color={isSelected ? '#4548b9' : '#6B7280'} 
-                                                />
-                                                <Text 
-                                                    className={`text-base ${
-                                                        isSelected ? 'text-[#4548b9]' : 'text-gray-700'
-                                                    }`}
-                                                    style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}
-                                                >
-                                                    {type.name}
-                                                </Text>
-                                            </View>
-                                        </TouchableOpacity>
-                                    );
-                                })}
-                            </View>
-                        </View>
-
-                        {/* Description */}
-                        <View className="mb-6">
-                            <Text className="text-lg text-gray-900 mb-3" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
-                                Description
-                            </Text>
-                            <TextInput
-                                className="bg-gray-50 rounded-xl p-4 text-gray-900 min-h-[120px]"
-                                style={{ 
-                                    fontFamily: 'PlusJakartaSans-Regular',
-                                    textAlignVertical: 'top'
-                                }}
-                                placeholder="Describe the issue or service needed..."
-                                placeholderTextColor="#9CA3AF"
-                                value={description}
-                                onChangeText={setDescription}
-                                multiline
-                                numberOfLines={5}
-                            />
-                        </View>
-                    </ScrollView>
-
-                    {/* Submit Button */}
-                    <View className="p-4 border-t border-gray-200">
-                        <TouchableOpacity
-                            className={`py-4 rounded-xl ${
-                                selectedServiceType && description.trim() 
-                                    ? 'bg-[#4548b9]' 
-                                    : 'bg-gray-300'
-                            }`}
-                            onPress={handleSubmitRequest}
-                            disabled={!selectedServiceType || !description.trim()}
-                        >
-                            <Text 
-                                className={`text-center text-base ${
-                                    selectedServiceType && description.trim() 
-                                        ? 'text-white' 
-                                        : 'text-gray-500'
-                                }`}
-                                style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}
-                            >
-                                Submit Request
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal>
         </View>
     );
 };
