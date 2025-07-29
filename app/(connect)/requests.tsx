@@ -205,7 +205,10 @@ const ServicesScreen = () => {
                             <View className="gap-y-3">
                                 {currentRequests.map((request) => (
                                     <View key={request.id} className="bg-white rounded-xl shadow-sm p-5">
-                                        <View className="flex-row items-start justify-between mb-3">
+                                        <TouchableOpacity 
+                                            className="flex-row items-start justify-between mb-3"
+                                            onPress={() => router.push(`/(connect)/service-detail/${request.id}`)}
+                                        >
                                             <View className="flex-1">
                                                 <Text className="text-lg text-gray-900 mb-1" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
                                                     {request.type}
@@ -219,7 +222,7 @@ const ServicesScreen = () => {
                                                     {request.status}
                                                 </Text>
                                             </View>
-                                        </View>
+                                        </TouchableOpacity>
                                         
                                         <View className="bg-blue-50 rounded-lg p-3">
                                             <Text className="text-sm text-blue-900 mb-1" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
@@ -246,7 +249,10 @@ const ServicesScreen = () => {
                         <View className="gap-y-3">
                             {serviceHistory.map((service) => (
                                 <View key={service.id} className="bg-white rounded-xl shadow-sm p-5">
-                                    <View className="flex-row items-start gap-4">
+                                    <TouchableOpacity 
+                                        className="flex-row items-start gap-4"
+                                        onPress={() => router.push(`/(connect)/service-detail/${service.id}`)}
+                                    >
                                         <View className="w-12 h-12 rounded-full bg-green-50 items-center justify-center">
                                             {getStatusIcon(service.status)}
                                         </View>
@@ -268,7 +274,7 @@ const ServicesScreen = () => {
                                                 {service.description}
                                             </Text>
                                         </View>
-                                    </View>
+                                    </TouchableOpacity>
                                 </View>
                             ))}
                         </View>
