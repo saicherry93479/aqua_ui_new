@@ -10,7 +10,6 @@ import {
   ActivityIndicator,
   Alert,
   Text,
-  TextInput,
   TouchableOpacity,
   View
 } from 'react-native';
@@ -18,6 +17,8 @@ import ActionSheet, { SheetManager } from 'react-native-actions-sheet';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { DynamicSelect, SelectOption } from '../DynamicSelect';
+import { DynamicInput } from '../DynamicInput';
+import { GlobalLoader } from '../GlobalLoader';
 import { router } from 'expo-router';
 
 interface InstallationFormActionSheetProps {
@@ -44,12 +45,6 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
 
   const [searchText, setSearchText] = useState('');
   const [isSearchLoading, setIsSearchLoading] = useState(false);
-  const [errors, setErrors] = useState({
-    name: false,
-    mobile: false,
-    city: false,
-    location: false
-  });
 
   const mapRef = useRef<MapView>(null);
   const autocompleteRef = useRef<any>(null);
@@ -67,30 +62,49 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
     }));
   }, [payload?.franchises]);
 
-  const validateStep1 = () => {
-    const newErrors = {
-      name: !formData.name.trim() || formData.name.trim().length < 2,
-      mobile: !formData.mobile.trim() || !/^\d{10}$/.test(formData.mobile.trim()),
-      city: !selectedCity,
-      location: false
-    };
-
-    setErrors(newErrors);
-    return !newErrors.name && !newErrors.mobile && !newErrors.city;
-  };
 
   const [selectedCity, setSelectedCity] = useState<SelectOption | null>(null);
 
-  const validateStep2 = () => {
-    const newErrors = {
-      ...errors,
-      location: !formData.coordinates || !formData.address.trim()
-    };
 
-    setErrors(newErrors);
-    return !newErrors.location;
+  // Validation functions for DynamicInput
+  const validateName = (name: string): string | null => {
+    if (!name.trim()) {
+      return 'Name is required';
+    }
+    if (name.trim().length < 2) {
+      return 'Name must be at least 2 characters';
+    }
+    return null;
   };
 
+  const validateMobile = (mobile: string): string | null => {
+    if (!mobile.trim()) {
+      return 'Mobile number is required';
+    }
+    if (!/^\d{10}$/.test(mobile.trim())) {
+      return 'Please enter a valid 10-digit mobile number';
+    }
+    return null;
+  };
+
+  const validateCity = (city: SelectOption | null): string | null => {
+    if (!city) {
+      return 'Please select a city';
+    }
+    return null;
+  };
+
+  const validateStep1 = () => {
+    return (
+      validateName(formData.name) === null &&
+      validateMobile(formData.mobile) === null &&
+      validateCity(selectedCity) === null
+    );
+  };
+
+  const validateStep2 = () => {
+    return formData.coordinates && formData.address.trim();
+  };
   const handleClose = () => {
     SheetManager.hide(sheetId);
   };
@@ -103,11 +117,13 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
 
   const handleBack = () => {
     setCurrentStep(1);
-    setErrors(prev => ({ ...prev, location: false }));
   };
 
   const handleSubmit = async () => {
-    if (!validateStep2()) return;
+    if (!validateStep2()) {
+      Alert.alert('Error', 'Please select a location on the map');
+      return;
+    }
 
     setIsLoading(true);
 
@@ -116,21 +132,12 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
         console.log('selectedCity ', selectedCity)
         await payload.onSubmit({ ...formData, city: selectedCity?.value });
       }
-      setTimeout(() => {
-        setIsLoading(false);
-        handleClose();
-        router.push('/successrequest')
-      }, 1000)
-      // handleClose();
-      return;
+      
+      handleClose();
+      router.push('/(newuser)/successrequest');
     } catch (error) {
       Alert.alert('Error', 'Something went wrong. Please try again.');
-    } finally {
-      setTimeout(() => {
-        setIsLoading(false);
-      
-      }, 1000)
-
+      setIsLoading(false);
     }
   };
 
@@ -139,7 +146,6 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
     // Store the complete franchise object from option.data
 
     setFormData(prev => ({ ...prev, city: option }));
-    setErrors(prev => ({ ...prev, city: false }));
   };
 
 
@@ -159,7 +165,6 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
         coordinates
       }));
 
-      setErrors(prev => ({ ...prev, location: false }));
 
       // Animate map to selected location
       if (mapRef.current) {
@@ -181,7 +186,6 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
       coordinates,
       address: `${coordinates.latitude.toFixed(6)}, ${coordinates.longitude.toFixed(6)}`
     }));
-    setErrors(prev => ({ ...prev, location: false }));
   };
 
   const DotLoader = () => (
@@ -192,12 +196,6 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
     </View>
   );
 
-  const validateCity = (city: SelectOption | null): string | null => {
-    if (!city) {
-      return 'Please select a city';
-    }
-    return null;
-  };
 
   return (
     <ActionSheet
@@ -209,20 +207,7 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
       closable={true}
     >
       <View className="relative">
-        {/* Loading Overlay */}
-        {isLoading && (
-          <View className="absolute inset-0 bg-black/50 z-50 flex items-center justify-center">
-            <View className="bg-white rounded-2xl p-6 items-center">
-              <ActivityIndicator size="large" color="#1a1a1a" />
-              <Text
-                className="mt-4 text-base text-black"
-                style={{ fontFamily: 'PlusJakartaSans-Medium' }}
-              >
-                Processing...
-              </Text>
-            </View>
-          </View>
-        )}
+        <GlobalLoader isVisible={isLoading} message="Submitting your request..." />
 
         <View className="r">
           <View className="relative w-full py-[40px] px-4 md:py-[20px] lg:py-0 border-b border-[#aaaaaa]/20 md:px-[30px] lg:px-[60px]">
@@ -233,6 +218,7 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
                 <TouchableOpacity
                   onPress={handleBack}
                   className="p-2"
+                  disabled={isLoading}
                 >
                   <ArrowLeft size={24} color="#000000" />
                 </TouchableOpacity>
@@ -250,6 +236,7 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
               <TouchableOpacity
                 onPress={handleClose}
                 className="p-2"
+                disabled={isLoading}
               >
                 <X size={24} color="#000000" />
               </TouchableOpacity>
@@ -288,59 +275,32 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
                   {/* Form */}
                   <View className="w-full flex flex-col gap-4">
                     {/* Name Field */}
-                    <View className="w-full">
-                      <TextInput
-                        className={`flex min-h-9 w-full border text-sm bg-white md:text-base rounded-2xl py-3 md:py-[15px] px-[18px] ${errors.name ? 'border-red-500' : 'border-slate-200'
-                          }`}
-                        placeholder="Enter your name"
-                        placeholderTextColor="rgba(0,0,0,0.4)"
-                        value={formData.name}
-                        onChangeText={(text) => {
-                          setFormData(prev => ({ ...prev, name: text }));
-                          if (errors.name && text.trim().length >= 2) {
-                            setErrors(prev => ({ ...prev, name: false }));
-                          }
-                        }}
-                        style={{ fontFamily: 'PlusJakartaSans-Regular' }}
-                      />
-                      {errors.name && (
-                        <Text
-                          className="text-red-500 text-xs mt-1 ml-4"
-                          style={{ fontFamily: 'PlusJakartaSans-Regular' }}
-                        >
-                          Please enter a valid name (minimum 2 characters)
-                        </Text>
-                      )}
-                    </View>
+                    <DynamicInput
+                      placeholder="Enter your name"
+                      value={formData.name}
+                      onChangeText={(text) => setFormData(prev => ({ ...prev, name: text }))}
+                      validation={validateName}
+                      borderRadius={16}
+                      autoCapitalize="words"
+                      editable={!isLoading}
+                      containerStyle={{ marginBottom: 0 }}
+                    />
 
                     {/* Mobile Field */}
-                    <View className="w-full">
-                      <TextInput
-                        className={`flex min-h-9 w-full border text-sm bg-white md:text-base rounded-2xl py-3 md:py-[15px] px-[18px] ${errors.mobile ? 'border-red-500' : 'border-slate-200'
-                          }`}
-                        placeholder="Enter your mobile number"
-                        placeholderTextColor="rgba(0,0,0,0.4)"
-                        keyboardType="numeric"
-                        maxLength={10}
-                        value={formData.mobile}
-                        onChangeText={(text) => {
-                          const numericText = text.replace(/[^0-9]/g, '');
-                          setFormData(prev => ({ ...prev, mobile: numericText }));
-                          if (errors.mobile && /^\d{10}$/.test(numericText)) {
-                            setErrors(prev => ({ ...prev, mobile: false }));
-                          }
-                        }}
-                        style={{ fontFamily: 'PlusJakartaSans-Regular' }}
-                      />
-                      {errors.mobile && (
-                        <Text
-                          className="text-red-500 text-xs mt-1 ml-4"
-                          style={{ fontFamily: 'PlusJakartaSans-Regular' }}
-                        >
-                          Please enter a valid 10-digit mobile number
-                        </Text>
-                      )}
-                    </View>
+                    <DynamicInput
+                      placeholder="Enter your mobile number"
+                      value={formData.mobile}
+                      onChangeText={(text) => {
+                        const numericText = text.replace(/[^0-9]/g, '');
+                        setFormData(prev => ({ ...prev, mobile: numericText }));
+                      }}
+                      validation={validateMobile}
+                      borderRadius={16}
+                      keyboardType="numeric"
+                      maxLength={10}
+                      editable={!isLoading}
+                      containerStyle={{ marginBottom: 0 }}
+                    />
 
                     {/* City Field using DynamicSelect */}
                     <View className="w-full">
@@ -355,16 +315,8 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
                         modalTitle="Select City"
                         disabled={isLoading}
                         required
-                        containerStyle={{ marginBottom: 24 }}
+                        containerStyle={{ marginBottom: 0 }}
                       />
-                      {/* {errors.city && (
-                        <Text
-                          className="text-red-500 text-xs mt-1 ml-4"
-                          style={{ fontFamily: 'PlusJakartaSans-Regular' }}
-                        >
-                          Please select a city
-                        </Text>
-                      )} */}
                     </View>
 
                     {/* Next Button */}
@@ -375,6 +327,7 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
                           backgroundColor: '#1a1a1a'
                         }}
                         onPress={handleNext}
+                        disabled={isLoading}
                       >
                         <Text
                           className="text-sm md:text-[18px] font-semibold text-center text-white"
@@ -411,7 +364,7 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
                   </View>
 
                   {/* Address Search */}
-                  <View className="mb-4 relative">
+                  <View className={`mb-4 relative ${isLoading ? 'pointer-events-none opacity-50' : ''}`}>
                     <GooglePlacesAutocomplete
                       ref={autocompleteRef}
                       placeholder="Search for your address..."
@@ -436,7 +389,7 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
                       styles={{
                         container: {
                           flex: 0,
-                          zIndex: 100,
+                          zIndex: isLoading ? 1 : 100,
                         },
                         textInputContainer: {
                           backgroundColor: 'transparent',
@@ -448,7 +401,7 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
                           height: 50,
                           borderRadius: 16,
                           borderWidth: 1,
-                          borderColor: errors.location ? '#ef4444' : '#e2e8f0',
+                          borderColor: '#e2e8f0',
                           backgroundColor: '#ffffff',
                           paddingLeft: 48,
                           paddingRight: 16,
@@ -498,6 +451,7 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
                         value: searchText,
                         returnKeyType: 'search',
                         clearButtonMode: 'while-editing',
+                        editable: !isLoading,
                       }}
                       renderLeftButton={() => (
                         <View style={{
@@ -537,7 +491,7 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
                       suppressDefaultStyles={false}
                     />
 
-                    {errors.location && (
+                    {!formData.coordinates && (
                       <Text
                         className="text-red-500 text-xs mt-1 ml-4"
                         style={{ fontFamily: 'PlusJakartaSans-Regular' }}
@@ -548,7 +502,7 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
                   </View>
 
                   {/* Map */}
-                  <View className={`h-96 rounded-2xl overflow-hidden border-2 ${errors.location ? 'border-red-500' : (formData.coordinates ? 'border-black' : 'border-slate-200')
+                  <View className={`h-96 rounded-2xl overflow-hidden border-2 ${formData.coordinates ? 'border-black' : 'border-slate-200'
                     }`}>
                     <MapView
                       ref={mapRef}
@@ -563,6 +517,8 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
                       onPress={handleMapPress}
                       showsUserLocation={true}
                       showsMyLocationButton={true}
+                      scrollEnabled={!isLoading}
+                      zoomEnabled={!isLoading}
                     >
                       {formData.coordinates && (
                         <Marker coordinate={formData.coordinates}>
