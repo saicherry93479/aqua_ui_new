@@ -194,14 +194,14 @@ const successrequest = () => {
                 {/* Continue and Select Plan Button */}
                 <TouchableOpacity
                     className="bg-white border border-[#4548b9] py-3 rounded-xl"
-                    onPress={handleContinuePress}
+                    onPress={() => router.push('/(newuser)/(tabs)/requests')}
 
                 >
                     <Text
                         className="text-gray-800 text-center text-base"
                         style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}
                     >
-                        Continue and Select Plan
+                        Show Requests
                     </Text>
                 </TouchableOpacity>
             </View>
