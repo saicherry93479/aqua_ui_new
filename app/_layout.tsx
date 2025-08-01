@@ -16,6 +16,7 @@ import {
 } from '@expo-google-fonts/plus-jakarta-sans';
 import { SheetProvider } from 'react-native-actions-sheet';
 import { useEffect, useLayoutEffect } from 'react';
+import { AuthProvider } from '@/contexts/AuthContext';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -31,26 +32,29 @@ export default function RootLayout() {
   if (!loaded && !error) {
     return null;
   }
- 
 
-  
+
+
 
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <SheetProvider>
-        <Stack initialRouteName='(connect)'>
-        <Stack.Screen name='(connect)' options={{ headerShown: false }}></Stack.Screen>
-          <Stack.Screen name="(newuser)" options={{ headerShown: false }} />
-          <Stack.Screen name='(auth)' options={{ headerShown: false }}></Stack.Screen>
 
-          <Stack.Screen name='intialscreen' options={{ headerShown: false }} ></Stack.Screen>
-          <Stack.Screen name="+not-found" />
-        </Stack>
-        <StatusBar style="auto" />
-      </SheetProvider>
-    </ThemeProvider>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <AuthProvider>
+          <SheetProvider>
+            <Stack initialRouteName='(connect)'>
+              <Stack.Screen name='(connect)' options={{ headerShown: false }}></Stack.Screen>
+              <Stack.Screen name="(newuser)" options={{ headerShown: false }} />
+              <Stack.Screen name='(auth)' options={{ headerShown: false }}></Stack.Screen>
+
+              <Stack.Screen name='intialscreen' options={{ headerShown: false }} ></Stack.Screen>
+              <Stack.Screen name="+not-found" />
+            </Stack>
+            <StatusBar style="auto" />
+          </SheetProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </GestureHandlerRootView>
   );
 }

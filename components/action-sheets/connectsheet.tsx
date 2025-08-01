@@ -73,7 +73,7 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
                 `Connected to internal account: ${connectId}`,
                 [{ text: 'OK', onPress: ()=>{
                     handleClose()
-                    router.replace('/(connect)')
+                    router.replace('/(connect)/(tabs)')
                 } }]
             );
 

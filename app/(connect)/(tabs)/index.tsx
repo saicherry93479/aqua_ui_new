@@ -252,7 +252,7 @@ const WaterPurifierApp = () => {
 
                     <TouchableOpacity 
                         className="bg-[#4548b9] rounded-xl py-4 flex-row items-center justify-center gap-2 shadow-lg"
-                        onPress={() => router.push('/(connect)/payments')}
+                        onPress={() => router.push('/(connect)/(tabs)/payments')}
                     >
                         <Text className="text-white text-base" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
                             Pay Now
@@ -268,7 +268,7 @@ const WaterPurifierApp = () => {
                         <Text className="text-xl text-gray-900" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
                             Recent Activity
                         </Text>
-                        <TouchableOpacity onPress={() => router.push('/(connect)/requests')}>
+                        <TouchableOpacity onPress={() => router.push('/(connect)/(tabs)/requests')}>
                             <Text className="text-[#4548b9] text-sm" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
                                 View All
                             </Text>
@@ -325,7 +325,7 @@ const WaterPurifierApp = () => {
                     <View className="gap-3">
                         <TouchableOpacity 
                             className="bg-[#4548b9] rounded-xl py-4 px-5 flex-row items-center justify-between"
-                            onPress={() => router.push('/(connect)/requests')}
+                            onPress={() => router.push('/(connect)/(tabs)/requests')}
                         >
                             <Text className="text-white text-base" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
                                 Request Service
@@ -335,7 +335,7 @@ const WaterPurifierApp = () => {
                         
                         <TouchableOpacity 
                             className="bg-gray-100 rounded-xl py-4 px-5 flex-row items-center justify-between"
-                            onPress={() => router.push('/(connect)/payments')}
+                            onPress={() => router.push('/(connect)/(tabs)/payments')}
                         >
                             <Text className="text-gray-700 text-base" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
                                 View Payment History

@@ -1,8 +1,8 @@
 import React, { useState, useLayoutEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Modal, TextInput, Alert } from 'react-native';
-import { useNavigation } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
 import { SheetManager } from 'react-native-actions-sheet';
-import { SHEET_IDS } from '../sheets';
+import { SHEET_IDS } from '../../sheets';
 import Svg, { Path, Circle } from 'react-native-svg';
 
 // Custom SVG Components

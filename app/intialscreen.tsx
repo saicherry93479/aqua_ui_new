@@ -9,10 +9,14 @@ import {
 import { SheetManager } from 'react-native-actions-sheet';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SHEET_IDS } from './sheets';
+import { apiService } from '@/api/api';
+import { useAuth } from '@/contexts/AuthContext';
+import { router } from 'expo-router';
 
 const AquaHomeOnboarding = () => {
 
 
+    const { setUser,user } = useAuth()
     return (
         <SafeAreaView className="flex-1 bg-gray-50">
             <ScrollView className="flex-1 px-6 pt-8" showsVerticalScrollIndicator={false}>
@@ -53,7 +57,7 @@ const AquaHomeOnboarding = () => {
                             </Text>
                             <View
                                 className="bg-[#4548b9] px-8 py-2 rounded-xl self-start"
-                             
+
                             >
                                 <Text
                                     className="text-white  text-sm"
@@ -68,15 +72,29 @@ const AquaHomeOnboarding = () => {
 
                 {/* Subscribe Card */}
                 <Pressable onPress={() => {
+
+                    if(user?.hasOnboarded){
+                        router.push('/(newuser)/(tabs)')
+                    }else{
+
                     SheetManager.show('onboarding-sheet', {
                         payload: {
-                            onComplete: (data) => {
+                            onComplete: async (data) => {
                                 console.log('Onboarding completed with data:', data);
+
+                                const response = await apiService.post('/auth/onboard', data)
+                                console.log('onbaord response ',response)
+                                if (response.success) {
+                                    setUser(response.data.user)
+                                }
+
+                                return response
                                 // Handle the onboarding data
                                 // data will contain: { username, alternativePhone, city }
                             },
                         },
                     });
+                }
                 }} className="mb-4 rounded-2xl overflow-hidden shadow-sm">
                     <ImageBackground
                         source={{ uri: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=500&h=200&fit=crop' }}
@@ -99,7 +117,7 @@ const AquaHomeOnboarding = () => {
                             </Text>
                             <View
                                 className="bg-[#4548b9] px-8 py-2 rounded-xl self-start"
-                               
+
                             >
                                 <Text
                                     className="text-white text-sm"

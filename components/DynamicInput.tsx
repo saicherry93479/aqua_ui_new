@@ -63,11 +63,11 @@ export const DynamicInput: React.FC<DynamicInputProps> = ({
   // Determine border color based on state
   const getBorderStyle = () => {
     const currentError = error || internalError;
-    
+
     if (currentError) {
       return 'border-red-500'; // Red for error
     }
-    
+
     if (hasStartedTyping && validation) {
       const validationResult = validation(value as string);
       if (!validationResult) {
@@ -75,11 +75,11 @@ export const DynamicInput: React.FC<DynamicInputProps> = ({
       }
       return 'border-red-500'; // Red for invalid
     }
-    
+
     if (isFocused) {
       return 'border-red-500'; // Red when typing (until validation succeeds)
     }
-    
+
     return 'border-slate-200'; // Gray default
   };
 

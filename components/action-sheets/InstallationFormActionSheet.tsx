@@ -1,45 +1,33 @@
-import React, { useState, useRef, useEffect } from 'react';
-import ActionSheet, { SheetManager } from 'react-native-actions-sheet';
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  TextInput,
-  ScrollView,
-  ActivityIndicator,
-  Keyboard,
-  Alert
-} from 'react-native';
-import {
-  Shield,
-  ChevronDown,
-  X,
-  CheckCircle,
   ArrowLeft,
   MapPin,
-  Search
+  Search,
+  Shield,
+  X
 } from 'lucide-react-native';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import React, { useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from 'react-native';
+import ActionSheet, { SheetManager } from 'react-native-actions-sheet';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import { DynamicSelect, SelectOption } from '../DynamicSelect';
+import { router } from 'expo-router';
 
 interface InstallationFormActionSheetProps {
   sheetId: string;
   payload?: {
+    product: any;
+    franchises: any[];
     onSubmit: (values: any) => void;
   };
 }
-
-const cities = [
-  'Mumbai',
-  'Delhi',
-  'Bangalore',
-  'Chennai',
-  'Kolkata',
-  'Hyderabad',
-  'Pune',
-  'Ahmedabad',
-  'Jaipur'
-];
 
 const GOOGLE_API_KEY = 'AIzaSyDBFyJk1ZsnnqxLC43WT_-OSCFZaG0OaNM';
 
@@ -49,12 +37,11 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
   const [formData, setFormData] = useState({
     name: '',
     mobile: '',
-    city: '',
+    city: null as any, // Store the complete franchise object instead of just city name
     address: '',
     coordinates: null as { latitude: number; longitude: number } | null
   });
 
-  const [showCityPicker, setShowCityPicker] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [errors, setErrors] = useState({
@@ -67,17 +54,32 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
   const mapRef = useRef<MapView>(null);
   const autocompleteRef = useRef<any>(null);
 
+  // Convert franchises to city options for DynamicSelect
+  const cityOptions: SelectOption[] = React.useMemo(() => {
+    if (!payload?.franchises) return [];
+
+    return payload.franchises.map((franchise) => ({
+      id: franchise.id?.toString(),
+      label: franchise.city,
+      value: franchise.id?.toString(), // Use franchise ID as value
+      subtitle: '',
+
+    }));
+  }, [payload?.franchises]);
+
   const validateStep1 = () => {
     const newErrors = {
       name: !formData.name.trim() || formData.name.trim().length < 2,
       mobile: !formData.mobile.trim() || !/^\d{10}$/.test(formData.mobile.trim()),
-      city: !formData.city.trim(),
+      city: !selectedCity,
       location: false
     };
 
     setErrors(newErrors);
     return !newErrors.name && !newErrors.mobile && !newErrors.city;
   };
+
+  const [selectedCity, setSelectedCity] = useState<SelectOption | null>(null);
 
   const validateStep2 = () => {
     const newErrors = {
@@ -110,25 +112,37 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
       if (payload?.onSubmit) {
-        payload.onSubmit(formData);
+        console.log('selectedCity ', selectedCity)
+        await payload.onSubmit({ ...formData, city: selectedCity?.value });
       }
-      handleClose();
+      setTimeout(() => {
+        setIsLoading(false);
+        handleClose();
+        router.push('/successrequest')
+      }, 1000)
+      // handleClose();
+      return;
     } catch (error) {
       Alert.alert('Error', 'Something went wrong. Please try again.');
     } finally {
-      setIsLoading(false);
+      setTimeout(() => {
+        setIsLoading(false);
+      
+      }, 1000)
+
     }
   };
 
-  const handleCitySelect = (city: string) => {
-    setFormData(prev => ({ ...prev, city }));
-    setShowCityPicker(false);
+  const handleCitySelect = (option: SelectOption) => {
+    console.log('Selected city option:', option); // Debug log
+    // Store the complete franchise object from option.data
+
+    setFormData(prev => ({ ...prev, city: option }));
     setErrors(prev => ({ ...prev, city: false }));
   };
+
+
 
   const handlePlaceSelect = (data: any, details: any) => {
     setIsSearchLoading(true);
@@ -178,17 +192,23 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
     </View>
   );
 
+  const validateCity = (city: SelectOption | null): string | null => {
+    if (!city) {
+      return 'Please select a city';
+    }
+    return null;
+  };
+
   return (
     <ActionSheet
       id={sheetId}
       containerStyle={{
         paddingHorizontal: 0,
         paddingBottom: 0,
-
       }}
       closable={true}
     >
-      <View className=" relative">
+      <View className="relative">
         {/* Loading Overlay */}
         {isLoading && (
           <View className="absolute inset-0 bg-black/50 z-50 flex items-center justify-center">
@@ -204,7 +224,7 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
           </View>
         )}
 
-        <View className="r" >
+        <View className="r">
           <View className="relative w-full py-[40px] px-4 md:py-[20px] lg:py-0 border-b border-[#aaaaaa]/20 md:px-[30px] lg:px-[60px]">
 
             {/* Header with Navigation */}
@@ -322,52 +342,29 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
                       )}
                     </View>
 
-                    {/* City Field */}
-                    <View className="w-full relative">
-                      <TouchableOpacity
-                        className={`flex min-h-9 w-full border bg-white rounded-2xl py-3 md:py-[15px] px-[18px] flex-row items-center justify-between ${errors.city ? 'border-red-500' : 'border-slate-200'
-                          }`}
-                        onPress={() => setShowCityPicker(!showCityPicker)}
-                      >
-                        <Text
-                          className={`md:text-base ${formData.city ? 'text-black' : 'text-black/40'}`}
-                          style={{ fontFamily: 'PlusJakartaSans-Regular' }}
-                        >
-                          {formData.city || 'Choose City'}
-                        </Text>
-                        <ChevronDown size={16} color="rgba(0,0,0,0.5)" />
-                      </TouchableOpacity>
-
-                      {errors.city && (
+                    {/* City Field using DynamicSelect */}
+                    <View className="w-full">
+                      <DynamicSelect
+                        options={cityOptions}
+                        onSelect={setSelectedCity}
+                        value={selectedCity}
+                        validation={validateCity}
+                        borderRadius={12}
+                        searchable={true}
+                        searchPlaceholder="Search cities..."
+                        modalTitle="Select City"
+                        disabled={isLoading}
+                        required
+                        containerStyle={{ marginBottom: 24 }}
+                      />
+                      {/* {errors.city && (
                         <Text
                           className="text-red-500 text-xs mt-1 ml-4"
                           style={{ fontFamily: 'PlusJakartaSans-Regular' }}
                         >
                           Please select a city
                         </Text>
-                      )}
-
-                      {/* City Picker Dropdown */}
-                      {showCityPicker && (
-                        <View className="absolute top-full left-0 right-0 bg-white border border-slate-200 rounded-2xl mt-1 z-50 max-h-48 shadow-lg">
-                          <ScrollView nestedScrollEnabled>
-                            {cities.map((city, index) => (
-                              <TouchableOpacity
-                                key={index}
-                                className="py-3 px-4 border-b border-slate-100"
-                                onPress={() => handleCitySelect(city)}
-                              >
-                                <Text
-                                  className="text-base text-black"
-                                  style={{ fontFamily: 'PlusJakartaSans-Regular' }}
-                                >
-                                  {city}
-                                </Text>
-                              </TouchableOpacity>
-                            ))}
-                          </ScrollView>
-                        </View>
-                      )}
+                      )} */}
                     </View>
 
                     {/* Next Button */}

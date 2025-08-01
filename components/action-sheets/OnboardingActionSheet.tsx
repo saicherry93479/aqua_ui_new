@@ -21,14 +21,42 @@ import { router } from 'expo-router';
 interface OnboardingActionSheetProps {
     sheetId: string;
     payload?: {
-        onComplete: (data: OnboardingData) => void;
+        onComplete: (data: OnboardingData) => {
+            success: boolean
+        };
     };
 }
 
+// Updated to match API schema
 interface OnboardingData {
-    username: string;
-    alternativePhone: string;
+    name: string; // Changed from username to name
+    alternativePhone?: string; // Made optional as per API
     city: string;
+}
+
+// API Response interfaces
+interface User {
+    id: string;
+    phone: string;
+    name: string;
+    city: string;
+    alternativePhone: string | null;
+    role: 'admin' | 'customer' | 'franchise_owner' | 'service_agent';
+    hasOnboarded: boolean;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+}
+
+interface OnboardingResponse {
+    message: string;
+    user: User;
+}
+
+interface ErrorResponse {
+    statusCode: number;
+    error: string;
+    message: string;
 }
 
 // Sample cities data - convert to SelectOption format
@@ -141,7 +169,7 @@ const CITY_OPTIONS: SelectOption[] = [
 ];
 
 export function OnboardingActionSheet({ sheetId, payload }: OnboardingActionSheetProps) {
-    const [username, setUsername] = useState('');
+    const [name, setName] = useState(''); // Changed from username to name
     const [alternativePhone, setAlternativePhone] = useState('');
     const [selectedCity, setSelectedCity] = useState<SelectOption | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -150,33 +178,32 @@ export function OnboardingActionSheet({ sheetId, payload }: OnboardingActionShee
         Keyboard.dismiss();
         SheetManager.hide(sheetId);
         // Reset state when closing
-        setUsername('');
+        setName('');
         setAlternativePhone('');
         setSelectedCity(null);
         setIsLoading(false);
     };
 
-    const validateUsername = (name: string): string | null => {
+    // Updated validation to match API requirements
+    const validateName = (name: string): string | null => {
         if (!name.trim()) {
-            return 'Username is required';
+            return 'Name is required';
         }
-        if (name.trim().length < 3) {
-            return 'Username must be at least 3 characters';
+        if (name.trim().length < 2) { // API requires minLength: 2
+            return 'Name must be at least 2 characters';
         }
-        if (name.trim().length > 20) {
-            return 'Username must be less than 20 characters';
-        }
-        if (!/^[a-zA-Z0-9_]+$/.test(name.trim())) {
-            return 'Username can only contain letters, numbers, and underscores';
+        if (name.trim().length > 50) {
+            return 'Name must be less than 50 characters';
         }
         return null;
     };
 
     const validatePhone = (phone: string): string | null => {
+        // Phone is optional, but if provided must match pattern
         if (!phone.trim()) {
-            return 'Alternative phone number is required';
+            return null; // Optional field
         }
-        const phoneRegex = /^[6-9]\d{9}$/;
+        const phoneRegex = /^\d{10}$/; // API pattern: "^\\d{10}$"
         if (!phoneRegex.test(phone.trim())) {
             return 'Please enter a valid 10-digit phone number';
         }
@@ -190,44 +217,92 @@ export function OnboardingActionSheet({ sheetId, payload }: OnboardingActionShee
         return null;
     };
 
+
+
+
+
     const handleComplete = async () => {
         Keyboard.dismiss();
 
-        const usernameError = validateUsername(username);
+        const nameError = validateName(name);
         const phoneError = validatePhone(alternativePhone);
         const cityError = validateCity(selectedCity);
 
-        if (usernameError || phoneError || cityError) {
+        if (nameError || phoneError || cityError) {
             return; // Components will show the errors
         }
 
         setIsLoading(true);
 
         try {
-            // Simulate API call for onboarding
-            await new Promise(resolve => setTimeout(resolve, 2000));
-
             const onboardingData: OnboardingData = {
-                username: username.trim(),
-                alternativePhone: alternativePhone.trim(),
+                name: name.trim(),
                 city: selectedCity!.label,
             };
 
+            // Only include alternativePhone if it's provided
+            if (alternativePhone.trim()) {
+                onboardingData.alternativePhone = alternativePhone.trim();
+            }
+
+
+
             if (payload?.onComplete) {
-                payload.onComplete(onboardingData);
+                const response: { success: boolean } = await payload.onComplete(onboardingData);
+
+                if (response.success) {
+                    // Show success message from API response
+                    Alert.alert(
+                        'Onboarding Complete!',
+                        'Welcome! Your profile has been set up successfully.',
+                        [{
+                            text: 'OK',
+                            onPress: () => {
+                                handleClose();
+                                router.replace('/(newuser)/(tabs)');
+                            }
+                        }]
+                    );
+                } else {
+                    Alert.alert(
+                        'Unable to Process',
+                        'Error',
+                        [{
+                            text: 'OK',
+                            onPress: () => {
+                                handleClose();
+
+                            }
+                        }]
+                    );
+                }
+            } else {
+                Alert.alert(
+                    'Unable to Process',
+                    'Error',
+                    [{
+                        text: 'OK',
+                        onPress: () => {
+                            handleClose();
+
+                        }
+                    }]
+                );
+            }
+
+
+
+        } catch (error) {
+            console.error('Onboarding error:', error);
+
+            let errorMessage = 'Something went wrong. Please try again.';
+            if (error instanceof Error) {
+                errorMessage = error.message;
             }
 
             Alert.alert(
-                'Onboarding Complete!',
-                'Welcome! Your profile has been set up successfully.',
-                [{ text: 'OK', onPress: handleClose }]
-            );
-            router.replace('/(newuser)/(tabs)')
-
-        } catch (error) {
-            Alert.alert(
                 'Onboarding Failed',
-                'Something went wrong. Please try again.',
+                errorMessage,
                 [{ text: 'OK' }]
             );
         } finally {
@@ -236,10 +311,9 @@ export function OnboardingActionSheet({ sheetId, payload }: OnboardingActionShee
     };
 
     const isFormValid =
-        username.trim() &&
-        alternativePhone.trim() &&
+        name.trim() &&
         selectedCity &&
-        validateUsername(username) === null &&
+        validateName(name) === null &&
         validatePhone(alternativePhone) === null &&
         validateCity(selectedCity) === null;
 
@@ -277,7 +351,6 @@ export function OnboardingActionSheet({ sheetId, payload }: OnboardingActionShee
                         {/* Header */}
                         <View className="flex-row items-center justify-between mb-6">
                             <View className="flex-1">
-
                                 <Text
                                     className="text-xl md:text-4xl text-center !leading-[30px] md:!leading-[46px] text-black"
                                     style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}
@@ -297,26 +370,26 @@ export function OnboardingActionSheet({ sheetId, payload }: OnboardingActionShee
 
                         {/* Form */}
                         <View className="mb-8">
-                            {/* Username Input */}
+                            {/* Name Input - Updated */}
                             <DynamicInput
-                                label="Username"
-                                placeholder="Enter your username"
-                                value={username}
-                                onChangeText={setUsername}
-                                validation={validateUsername}
+                                label="Full Name"
+                                placeholder="Enter your full name"
+                                value={name}
+                                onChangeText={setName}
+                                validation={validateName}
                                 borderRadius={12}
-                                autoCapitalize="none"
+                                autoCapitalize="words"
                                 autoCorrect={false}
                                 editable={!isLoading}
                                 containerStyle={{ marginBottom: 24 }}
-                                maxLength={20}
+                                maxLength={50}
                                 required
                             />
 
-                            {/* Alternative Phone Input */}
+                            {/* Alternative Phone Input - Now Optional */}
                             <DynamicInput
                                 label="Alternative Phone Number"
-                                placeholder="Enter alternative phone number"
+                                placeholder="Enter alternative phone number (optional)"
                                 value={alternativePhone}
                                 onChangeText={setAlternativePhone}
                                 validation={validatePhone}
@@ -325,7 +398,7 @@ export function OnboardingActionSheet({ sheetId, payload }: OnboardingActionShee
                                 editable={!isLoading}
                                 containerStyle={{ marginBottom: 24 }}
                                 maxLength={10}
-                                required
+                                required={false} // Made optional
                             />
 
                             {/* City Selection */}
@@ -349,8 +422,8 @@ export function OnboardingActionSheet({ sheetId, payload }: OnboardingActionShee
                         {/* Complete Button */}
                         <TouchableOpacity
                             className={`flex-row items-center justify-center py-4 rounded-xl ${isCompleteDisabled
-                                    ? 'bg-gray-300'
-                                    : 'bg-[#4548b9]'
+                                ? 'bg-gray-300'
+                                : 'bg-[#4548b9]'
                                 }`}
                             onPress={handleComplete}
                             disabled={isCompleteDisabled}

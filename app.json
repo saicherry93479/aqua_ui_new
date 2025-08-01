@@ -6,19 +6,21 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "jsEngine": "hermes",
-    "scheme": "yoyoappbolt",
+    "scheme": "aquahome",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true
     },
     "android": {
+      "versionCode": 5,
+      "googleServicesFile": "./service-account.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.cherry93479.ui_testing",
+      "package": "com.cherry93479.aquaHomeUi",
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyDBFyJk1ZsnnqxLC43WT_-OSCFZaG0OaNM"
@@ -32,6 +34,8 @@
     },
     "plugins": [
       "expo-router",
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
       [
         "expo-splash-screen",
         {
