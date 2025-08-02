@@ -1,6 +1,7 @@
 import React, { useLayoutEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useNavigation } from 'expo-router';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import Svg, { Path, Circle, Polyline } from 'react-native-svg';
 
 // Custom SVG Components
@@ -37,6 +38,7 @@ const CalendarIcon = ({ size = 20, color = "currentColor" }) => (
 
 const PaymentsScreen = () => {
     const navigation = useNavigation();
+    const { currentSession } = useSubscription();
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -60,58 +62,25 @@ const PaymentsScreen = () => {
         });
     }, [navigation]);
 
+    const subscription = currentSession?.subscription;
+    
+    // Mock payment history - replace with actual API call
     const paymentHistory = [
         {
             id: '1',
-            amount: 899,
-            date: '20 Apr 2024',
+            amount: subscription?.monthlyAmount || 899,
+            date: subscription?.currentPeriodStartDate ? new Date(subscription.currentPeriodStartDate).toLocaleDateString() : '20 Apr 2024',
             status: 'paid',
             method: 'UPI',
             transactionId: 'TXN123456789',
-            description: 'Monthly Rental - April 2024'
-        },
-        {
-            id: '2',
-            amount: 899,
-            date: '20 Mar 2024',
-            status: 'paid',
-            method: 'Credit Card',
-            transactionId: 'TXN123456788',
-            description: 'Monthly Rental - March 2024'
-        },
-        {
-            id: '3',
-            amount: 899,
-            date: '20 Feb 2024',
-            status: 'paid',
-            method: 'UPI',
-            transactionId: 'TXN123456787',
-            description: 'Monthly Rental - February 2024'
-        },
-        {
-            id: '4',
-            amount: 899,
-            date: '20 Jan 2024',
-            status: 'paid',
-            method: 'Net Banking',
-            transactionId: 'TXN123456786',
-            description: 'Monthly Rental - January 2024'
-        },
-        {
-            id: '5',
-            amount: 899,
-            date: '20 Dec 2023',
-            status: 'paid',
-            method: 'UPI',
-            transactionId: 'TXN123456785',
-            description: 'Monthly Rental - December 2023'
+            description: `Monthly Rental - ${subscription?.planName || 'Current Plan'}`
         },
     ];
 
     const upcomingPayment = {
-        amount: 899,
-        dueDate: '20 May 2024',
-        daysLeft: 5
+        amount: subscription?.monthlyAmount || 899,
+        dueDate: subscription?.nextPaymentDate ? new Date(subscription.nextPaymentDate).toLocaleDateString() : '20 May 2024',
+        daysLeft: subscription?.nextPaymentDate ? Math.ceil((new Date(subscription.nextPaymentDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 5
     };
 
     const getPaymentMethodIcon = (method: string) => {

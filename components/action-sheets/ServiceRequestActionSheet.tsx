@@ -35,11 +35,11 @@ interface ServiceRequestData {
 }
 
 const serviceTypes = [
-  { id: 'filter', name: 'Filter Replacement', icon: '🔧' },
+  { id: 'filter_replacement', name: 'Filter Replacement', icon: '🔧' },
   { id: 'maintenance', name: 'Maintenance Check', icon: '⚙️' },
   { id: 'repair', name: 'Repair Service', icon: '🛠️' },
   { id: 'installation', name: 'Installation', icon: '📦' },
-  { id: 'others', name: 'Others', icon: '❓' },
+  { id: 'other', name: 'Others', icon: '❓' },
 ];
 
 export function ServiceRequestActionSheet({ sheetId, payload }: ServiceRequestActionSheetProps) {

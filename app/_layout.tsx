@@ -17,6 +17,7 @@ import {
 import { SheetProvider } from 'react-native-actions-sheet';
 import { useEffect, useLayoutEffect } from 'react';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -42,17 +43,19 @@ export default function RootLayout() {
 
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <AuthProvider>
-          <SheetProvider>
-            <Stack initialRouteName='(connect)'>
-              <Stack.Screen name='(connect)' options={{ headerShown: false }}></Stack.Screen>
-              <Stack.Screen name="(newuser)" options={{ headerShown: false }} />
-              <Stack.Screen name='(auth)' options={{ headerShown: false }}></Stack.Screen>
+          <SubscriptionProvider>
+            <SheetProvider>
+              <Stack initialRouteName='(connect)'>
+                <Stack.Screen name='(connect)' options={{ headerShown: false }}></Stack.Screen>
+                <Stack.Screen name="(newuser)" options={{ headerShown: false }} />
+                <Stack.Screen name='(auth)' options={{ headerShown: false }}></Stack.Screen>
 
-              <Stack.Screen name='intialscreen' options={{ headerShown: false }} ></Stack.Screen>
-              <Stack.Screen name="+not-found" />
-            </Stack>
-            <StatusBar style="auto" />
-          </SheetProvider>
+                <Stack.Screen name='intialscreen' options={{ headerShown: false }} ></Stack.Screen>
+                <Stack.Screen name="+not-found" />
+              </Stack>
+              <StatusBar style="auto" />
+            </SheetProvider>
+          </SubscriptionProvider>
         </AuthProvider>
       </ThemeProvider>
     </GestureHandlerRootView>

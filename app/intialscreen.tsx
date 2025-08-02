@@ -11,12 +11,44 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { SHEET_IDS } from './sheets';
 import { apiService } from '@/api/api';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import { router } from 'expo-router';
 
 const AquaHomeOnboarding = () => {
 
 
-    const { setUser,user } = useAuth()
+    const { setUser, user } = useAuth();
+    const { checkExistingSession } = useSubscription();
+
+    useEffect(() => {
+        checkForExistingSubscriptionSession();
+    }, []);
+
+    const checkForExistingSubscriptionSession = async () => {
+        try {
+            const session = await checkExistingSession();
+            if (session) {
+                // If there's an existing subscription session, show option to continue
+                Alert.alert(
+                    'Existing Session Found',
+                    `You have an active session for ${session.connectId}. Would you like to continue?`,
+                    [
+                        {
+                            text: 'Continue Session',
+                            onPress: () => router.replace('/(connect)/(tabs)')
+                        },
+                        {
+                            text: 'Stay Here',
+                            style: 'cancel'
+                        }
+                    ]
+                );
+            }
+        } catch (error) {
+            console.error('Error checking subscription session:', error);
+        }
+    };
+
     return (
         <SafeAreaView className="flex-1 bg-gray-50">
             <ScrollView className="flex-1 px-6 pt-8" showsVerticalScrollIndicator={false}>

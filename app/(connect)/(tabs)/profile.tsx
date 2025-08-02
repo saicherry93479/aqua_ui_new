@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, router } from 'expo-router';
 import { SheetManager } from 'react-native-actions-sheet';
 import { SHEET_IDS } from '../../sheets';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import Svg, { Path, Circle, Polyline } from 'react-native-svg';
 
 // Custom SVG Components
@@ -67,6 +68,7 @@ const ChevronRightIcon = ({ size = 20, color = "currentColor" }) => (
 
 const ProfileScreen = () => {
     const navigation = useNavigation();
+    const { currentSession, endSession } = useSubscription();
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -90,24 +92,38 @@ const ProfileScreen = () => {
         });
     }, [navigation]);
 
-    const userInfo = {
-        name: 'Rajesh Kumar',
-        email: 'rajesh.kumar@email.com',
-        phone: '+91 98765 43210',
-        address: '123, MG Road, Bangalore, Karnataka 560001',
-        customerId: 'AQ2024001',
-        planType: 'AquaPure Pro'
+    const userInfo = currentSession ? {
+        name: currentSession.subscription.customer.name,
+        email: currentSession.subscription.customer.alternativePhone || 'Not provided',
+        phone: currentSession.subscription.customer.phone,
+        address: currentSession.subscription.franchise.city,
+        customerId: currentSession.subscription.customer.id.slice(-8),
+        planType: currentSession.subscription.planName,
+        connectId: currentSession.connectId
+    } : {
+        name: 'User',
+        email: 'Not available',
+        phone: 'Not available',
+        address: 'Not available',
+        customerId: 'N/A',
+        planType: 'No active plan',
+        connectId: 'N/A'
     };
 
-    const handleLogout = () => {
+    const handleEndSession = () => {
         Alert.alert(
-            'Logout',
-            'Are you sure you want to logout?',
+            'End Session',
+            'Are you sure you want to end this session? You can reconnect anytime.',
             [
                 { text: 'Cancel', style: 'cancel' },
-                { text: 'Logout', style: 'destructive', onPress: () => {
-                    // Handle logout logic here
-                    console.log('User logged out');
+                { text: 'End Session', style: 'destructive', onPress: async () => {
+                    try {
+                        await endSession();
+                        router.replace('/intialscreen');
+                    } catch (error) {
+                        console.error('Error ending session:', error);
+                        Alert.alert('Error', 'Failed to end session');
+                    }
                 }}
             ]
         );
@@ -165,6 +181,9 @@ const ProfileScreen = () => {
                             <Text className="text-base text-blue-700" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
                                 {userInfo.planType}
                             </Text>
+                            <Text className="text-xs text-blue-600 mt-1" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
+                                Connect ID: {userInfo.connectId}
+                            </Text>
                         </View>
                     </View>
 
@@ -195,7 +214,7 @@ const ProfileScreen = () => {
                                 </View>
                                 <View className="flex-1">
                                     <Text className="text-sm text-gray-600" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
-                                        Email Address
+                                        Alternative Phone
                                     </Text>
                                     <Text className="text-base text-gray-900" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
                                         {userInfo.email}
@@ -209,7 +228,7 @@ const ProfileScreen = () => {
                                 </View>
                                 <View className="flex-1">
                                     <Text className="text-sm text-gray-600" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
-                                        Installation Address
+                                        City
                                     </Text>
                                     <Text className="text-base text-gray-900" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
                                         {userInfo.address}
@@ -251,11 +270,11 @@ const ProfileScreen = () => {
                     {/* Logout Button */}
                     <TouchableOpacity
                         className="bg-white rounded-2xl shadow-sm p-5 flex-row items-center justify-center gap-3"
-                        onPress={handleLogout}
+                        onPress={handleEndSession}
                     >
                         <LogOutIcon size={20} color="#EF4444" />
                         <Text className="text-red-500 text-base" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
-                            Logout
+                            End Session
                         </Text>
                     </TouchableOpacity>
 

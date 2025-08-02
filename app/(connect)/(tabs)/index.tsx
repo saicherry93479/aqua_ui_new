@@ -1,6 +1,7 @@
 import { router, useNavigation } from 'expo-router';
 import React, { useLayoutEffect } from 'react';
 import { Dimensions, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import Svg, { Circle, Path, Polyline } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
@@ -56,6 +57,7 @@ const CalendarIcon = ({ size = 20, color = "currentColor" }) => (
 
 const WaterPurifierApp = () => {
     const navigation = useNavigation();
+    const { currentSession, refreshSubscription } = useSubscription();
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -78,6 +80,25 @@ const WaterPurifierApp = () => {
             }
         });
     }, [navigation]);
+
+    const subscription = currentSession?.subscription;
+    const customer = subscription?.customer;
+    const product = subscription?.product;
+
+    // Get the most recent service request
+    const recentServiceRequests = subscription?.serviceRequests?.slice(0, 2) || [];
+
+    // Calculate days until next payment
+    const getDaysUntilPayment = () => {
+        if (!subscription?.nextPaymentDate) return 0;
+        const nextPayment = new Date(subscription.nextPaymentDate);
+        const today = new Date();
+        const diffTime = nextPayment.getTime() - today.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return Math.max(0, diffDays);
+    };
+
+    const daysLeft = getDaysUntilPayment();
 
     return (
         <ScrollView className="flex-1 bg-gray-50" showsVerticalScrollIndicator={false}>
@@ -121,17 +142,17 @@ const WaterPurifierApp = () => {
              <View className="bg-[#4548b9] mx-4 rounded-2xl shadow-sm p-5">
                     <View className="flex-row items-center justify-between mb-4">
                         <Text className="text-xl text-white" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
-                            Your Plan Details
+                            {subscription?.planName || 'Your Plan Details'}
                         </Text>
                         <View className="bg-green-100 px-3 py-1 rounded-full">
                             <Text className="text-green-700 text-xs" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
-                                ACTIVE
+                                {subscription?.status || 'ACTIVE'}
                             </Text>
                         </View>
                     </View>
                     
                     <Text className="text-white mb-4 text-base" style={{ fontFamily: 'PlusJakartaSans-Medium' }}>
-                        AquaPure Pro Model
+                        {product?.name || 'AquaPure Pro Model'}
                     </Text>
 
                     <View className="flex-row gap-4 mb-6">
@@ -140,15 +161,15 @@ const WaterPurifierApp = () => {
                                 Plan Start
                             </Text>
                             <Text className="text-base text-gray-900" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
-                                21 May 2023
+                                {subscription?.startDate ? new Date(subscription.startDate).toLocaleDateString() : '21 May 2023'}
                             </Text>
                         </View>
                         <View className="flex-1 bg-gray-50 rounded-xl p-4">
                             <Text className="text-sm text-gray-600 mb-1" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
-                                Plan End
+                                Next Payment
                             </Text>
                             <Text className="text-base text-gray-900" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
-                                20 May 2025
+                                {subscription?.nextPaymentDate ? new Date(subscription.nextPaymentDate).toLocaleDateString() : '20 May 2025'}
                             </Text>
                         </View>
                     </View>
@@ -240,12 +261,12 @@ const WaterPurifierApp = () => {
                                 Monthly Rental
                             </Text>
                             <Text className="text-3xl text-[#4548b9]" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
-                                ₹899
+                                ₹{subscription?.monthlyAmount || 899}
                             </Text>
                         </View>
                         <View className="bg-orange-100 px-3 py-1 rounded-full">
                             <Text className="text-orange-700 text-xs" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
-                                5 days left
+                                {daysLeft} days left
                             </Text>
                         </View>
                     </View>
@@ -276,43 +297,47 @@ const WaterPurifierApp = () => {
                     </View>
                     
                     <View className="gap-y-3">
-                        <View className="bg-white rounded-xl shadow-sm p-4 flex-row items-center gap-4">
-                            <View className="w-12 h-12 rounded-full bg-green-50 items-center justify-center">
-                                <CheckCircle2Icon size={24} color="#10b981" />
-                            </View>
-                            <View className="flex-1">
-                                <Text className="text-base text-gray-900 mb-1" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
-                                    Filter Replacement
+                        {recentServiceRequests.length > 0 ? (
+                            recentServiceRequests.map((request) => (
+                                <View key={request.id} className="bg-white rounded-xl shadow-sm p-4 flex-row items-center gap-4">
+                                    <View className={`w-12 h-12 rounded-full items-center justify-center ${
+                                        request.status === 'COMPLETED' ? 'bg-green-50' : 
+                                        request.status === 'SCHEDULED' ? 'bg-blue-50' : 'bg-orange-50'
+                                    }`}>
+                                        {request.status === 'COMPLETED' ? (
+                                            <CheckCircle2Icon size={24} color="#10b981" />
+                                        ) : (
+                                            <WrenchIcon size={24} color="#3b82f6" />
+                                        )}
+                                    </View>
+                                    <View className="flex-1">
+                                        <Text className="text-base text-gray-900 mb-1" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
+                                            {request.type.charAt(0).toUpperCase() + request.type.slice(1).toLowerCase()}
+                                        </Text>
+                                        <Text className="text-sm text-gray-500" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
+                                            {new Date(request.createdAt).toLocaleDateString()} • {request.status}
+                                        </Text>
+                                    </View>
+                                    <View className={`px-3 py-1 rounded-full ${
+                                        request.status === 'COMPLETED' ? 'bg-green-100' : 
+                                        request.status === 'SCHEDULED' ? 'bg-blue-100' : 'bg-orange-100'
+                                    }`}>
+                                        <Text className={`text-xs ${
+                                            request.status === 'COMPLETED' ? 'text-green-700' : 
+                                            request.status === 'SCHEDULED' ? 'text-blue-700' : 'text-orange-700'
+                                        }`} style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
+                                            {request.status}
+                                        </Text>
+                                    </View>
+                                </View>
+                            ))
+                        ) : (
+                            <View className="bg-white rounded-xl shadow-sm p-4 items-center">
+                                <Text className="text-gray-500" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
+                                    No recent activity
                                 </Text>
-                                <Text className="text-sm text-gray-500" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
-                                    15 Feb 2024 • Completed
-                                </Text>
                             </View>
-                            <View className="bg-green-100 px-3 py-1 rounded-full">
-                                <Text className="text-green-700 text-xs" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
-                                    DONE
-                                </Text>
-                            </View>
-                        </View>
-
-                        <View className="bg-white rounded-xl shadow-sm p-4 flex-row items-center gap-4">
-                            <View className="w-12 h-12 rounded-full bg-blue-50 items-center justify-center">
-                                <WrenchIcon size={24} color="#3b82f6" />
-                            </View>
-                            <View className="flex-1">
-                                <Text className="text-base text-gray-900 mb-1" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
-                                    Maintenance Check
-                                </Text>
-                                <Text className="text-sm text-gray-500" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
-                                    20 Nov 2023 • Completed
-                                </Text>
-                            </View>
-                            <View className="bg-green-100 px-3 py-1 rounded-full">
-                                <Text className="text-green-700 text-xs" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
-                                    DONE
-                                </Text>
-                            </View>
-                        </View>
+                        )}
                     </View>
                 </View>
 

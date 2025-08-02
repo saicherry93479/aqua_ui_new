@@ -16,6 +16,7 @@ import { DynamicInput } from '../DynamicInput';
 import { router } from 'expo-router';
 import { apiService } from '@/api/api';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 
 
 interface LoginActionSheetProps {
@@ -33,8 +34,27 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
     const [connectId, setConnectId] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [loadingMessage, setLoadingMessage] = useState('Connecting to account...');
+    const [showSessionOptions, setShowSessionOptions] = useState(false);
+    const [existingSession, setExistingSession] = useState<any>(null);
 
-    const {user } =useAuth()
+    const { user } = useAuth();
+    const { createSession, checkExistingSession, endSession } = useSubscription();
+
+    useEffect(() => {
+        checkForExistingSession();
+    }, []);
+
+    const checkForExistingSession = async () => {
+        try {
+            const session = await checkExistingSession();
+            if (session) {
+                setExistingSession(session);
+                setShowSessionOptions(true);
+            }
+        } catch (error) {
+            console.error('Error checking existing session:', error);
+        }
+    };
     const handleClose = () => {
         Keyboard.dismiss();
         SheetManager.hide(sheetId);
@@ -42,6 +62,8 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
         setConnectId('');
         setIsLoading(false);
         setLoadingMessage('Connecting to account...');
+        setShowSessionOptions(false);
+        setExistingSession(null);
     };
 
     const checkSubscription = async (connectId: string) => {
@@ -115,7 +137,10 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
                 return;
             }
 
-            // Step 3: Success - both connection and subscription are valid
+            // Step 3: Create session
+            await createSession(connectId.trim(), subscriptionResult.subscription);
+
+            // Step 4: Success - both connection and subscription are valid
             if (payload?.onConnect) {
                 payload.onConnect(connectId.trim(), subscriptionResult.subscription);
             }
@@ -154,6 +179,54 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
         }
     };
 
+    const handleContinueExistingSession = async () => {
+        try {
+            setIsLoading(true);
+            setLoadingMessage('Resuming session...');
+            
+            // Refresh the existing session data
+            const response = await apiService.post('/subscriptions/check', {
+                connectId: existingSession.connectId,
+                customerPhone: existingSession.subscription.customer.phone,
+            });
+
+            if (response.success && response.data.isValid) {
+                await createSession(existingSession.connectId, response.data.subscription);
+                
+                Alert.alert(
+                    'Session Resumed',
+                    `Welcome back! Continuing with ${existingSession.connectId}`,
+                    [{ 
+                        text: 'OK', 
+                        onPress: () => {
+                            handleClose();
+                            router.replace('/(connect)/(tabs)');
+                        } 
+                    }]
+                );
+            } else {
+                throw new Error('Session is no longer valid');
+            }
+        } catch (error) {
+            console.error('Error resuming session:', error);
+            Alert.alert('Error', 'Failed to resume session. Please try connecting again.');
+            await endSession();
+            setShowSessionOptions(false);
+            setExistingSession(null);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleNewSession = async () => {
+        try {
+            await endSession();
+            setShowSessionOptions(false);
+            setExistingSession(null);
+        } catch (error) {
+            console.error('Error ending session:', error);
+        }
+    };
     const isConnectDisabled = !connectId.trim() || isLoading || validateConnectId(connectId) !== null;
 
     return (
@@ -191,7 +264,7 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
                                 className="text-xl md:text-4xl text-center !leading-[30px] md:!leading-[46px] text-black"
                                 style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}
                             >
-                                Account Connection
+                                {showSessionOptions ? 'Existing Session Found' : 'Account Connection'}
                             </Text>
                         </View>
 
@@ -204,58 +277,108 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
                         </TouchableOpacity>
                     </View>
 
-                    {/* Form */}
-                    <View className="mb-8">
-                        <DynamicInput
-                            label="Connect ID"
-                            placeholder="Enter your Connect ID"
-                            value={connectId}
-                            onChangeText={setConnectId}
-                            validation={validateConnectId}
-                            borderRadius={12}
-                            autoCapitalize="none"
-                            autoCorrect={false}
-                            editable={!isLoading}
-                            containerStyle={{ marginBottom: 24 }}
-                        />
-                    </View>
+                    {showSessionOptions ? (
+                        /* Session Options */
+                        <View className="mb-8">
+                            <View className="bg-blue-50 rounded-xl p-4 mb-6">
+                                <Text className="text-blue-900 mb-2" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
+                                    Previous Session
+                                </Text>
+                                <Text className="text-blue-800" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
+                                    Connect ID: {existingSession?.connectId}
+                                </Text>
+                                <Text className="text-blue-800" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
+                                    Plan: {existingSession?.subscription?.planName}
+                                </Text>
+                                <Text className="text-blue-700 text-sm mt-1" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
+                                    Last accessed: {existingSession?.lastAccessed ? new Date(existingSession.lastAccessed).toLocaleDateString() : 'Unknown'}
+                                </Text>
+                            </View>
 
-                    {/* Connect Button */}
-                    <TouchableOpacity
-                        className={`flex-row items-center justify-center py-3 rounded-xl ${isConnectDisabled
-                                ? 'bg-gray-300'
-                                : 'bg-[#4548b9]'
-                            }`}
-                        onPress={handleConnect}
-                        disabled={isConnectDisabled}
-                        activeOpacity={0.8}
-                    >
-                        {isLoading ? (
-                            <View className="flex-row items-center">
-                                <ActivityIndicator size="small" color="white" />
-                                <Text
-                                    className="text-white text-base ml-2"
-                                    style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}
+                            <View className="gap-3">
+                                <TouchableOpacity
+                                    className="py-4 rounded-xl bg-[#4548b9]"
+                                    onPress={handleContinueExistingSession}
+                                    disabled={isLoading}
                                 >
-                                    {loadingMessage.includes('Verifying') ? 'Verifying...' : 'Connecting...'}
-                                </Text>
-                            </View>
-                        ) : (
-                            <View className="flex-row items-center">
-                                <Text
-                                    className={`text-base mr-2 ${isConnectDisabled ? 'text-gray-500' : 'text-white'
-                                        }`}
-                                    style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}
+                                    <Text
+                                        className="text-white text-center text-base"
+                                        style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}
+                                    >
+                                        Continue Previous Session
+                                    </Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    className="py-4 rounded-xl bg-gray-100"
+                                    onPress={handleNewSession}
+                                    disabled={isLoading}
                                 >
-                                    Connect Account
-                                </Text>
-                                <ArrowRight
-                                    size={20}
-                                    color={isConnectDisabled ? '#6B7280' : 'white'}
-                                />
+                                    <Text
+                                        className="text-gray-700 text-center text-base"
+                                        style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}
+                                    >
+                                        Start New Session
+                                    </Text>
+                                </TouchableOpacity>
                             </View>
-                        )}
-                    </TouchableOpacity>
+                        </View>
+                    ) : (
+                        /* Form */
+                        <View className="mb-8">
+                            <DynamicInput
+                                label="Connect ID"
+                                placeholder="Enter your Connect ID"
+                                value={connectId}
+                                onChangeText={setConnectId}
+                                validation={validateConnectId}
+                                borderRadius={12}
+                                autoCapitalize="none"
+                                autoCorrect={false}
+                                editable={!isLoading}
+                                containerStyle={{ marginBottom: 24 }}
+                            />
+                        </View>
+                    )}
+
+                    {!showSessionOptions && (
+                        /* Connect Button */
+                        <TouchableOpacity
+                            className={`flex-row items-center justify-center py-3 rounded-xl ${isConnectDisabled
+                                    ? 'bg-gray-300'
+                                    : 'bg-[#4548b9]'
+                                }`}
+                            onPress={handleConnect}
+                            disabled={isConnectDisabled}
+                            activeOpacity={0.8}
+                        >
+                            {isLoading ? (
+                                <View className="flex-row items-center">
+                                    <ActivityIndicator size="small" color="white" />
+                                    <Text
+                                        className="text-white text-base ml-2"
+                                        style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}
+                                    >
+                                        {loadingMessage.includes('Verifying') ? 'Verifying...' : 'Connecting...'}
+                                    </Text>
+                                </View>
+                            ) : (
+                                <View className="flex-row items-center">
+                                    <Text
+                                        className={`text-base mr-2 ${isConnectDisabled ? 'text-gray-500' : 'text-white'
+                                            }`}
+                                        style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}
+                                    >
+                                        Connect Account
+                                    </Text>
+                                    <ArrowRight
+                                        size={20}
+                                        color={isConnectDisabled ? '#6B7280' : 'white'}
+                                    />
+                                </View>
+                            )}
+                        </TouchableOpacity>
+                    )}
 
                     {/* Footer */}
                     <View className="mt-6">
