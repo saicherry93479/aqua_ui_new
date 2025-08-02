@@ -130,9 +130,11 @@ export default function RequestDetailScreen() {
             setError(null);
 
             const response = await apiService.get(`/installation-requests/${id}`);
+
+            console.log('response in request details  ', response)
             
             if (response.success && response.data) {
-                setRequest(response.data);
+                setRequest(response.data.installationRequest);
             } else {
                 setError('Failed to load request details');
             }
@@ -270,7 +272,7 @@ export default function RequestDetailScreen() {
                         <View className="flex-row items-start justify-between mb-4">
                             <View className="flex-1">
                                 <Text className="text-xl text-gray-900 mb-2" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
-                                    {request.product.name}
+                                    {request.product?.name}
                                 </Text>
                                 <Text className="text-sm text-gray-600" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
                                     Request ID: #{request.id.slice(-8)}
@@ -320,7 +322,7 @@ export default function RequestDetailScreen() {
                                     Product Name
                                 </Text>
                                 <Text className="text-gray-900" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
-                                    {request.product.name}
+                                    {request.product?.name}
                                 </Text>
                             </View>
                             

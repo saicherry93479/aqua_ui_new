@@ -12,26 +12,51 @@ import {
     X,
     ArrowRight,
 } from 'lucide-react-native';
-import { DynamicInput } from '../DynamicInput'; // Import the DynamicInput component
+import { DynamicInput } from '../DynamicInput';
 import { router } from 'expo-router';
+import { apiService } from '@/api/api';
+import { useAuth } from '@/contexts/AuthContext';
+
 
 interface LoginActionSheetProps {
     sheetId: string;
     payload?: {
-        onConnect: (connectId: string) => void;
+        onConnect: (connectId: string, subscription?: any) => void;
+        customerPhone?: string; // Add customer phone to payload
     };
 }
+
+// API service function
+
 
 export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) {
     const [connectId, setConnectId] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [loadingMessage, setLoadingMessage] = useState('Connecting to account...');
 
+    const {user } =useAuth()
     const handleClose = () => {
-        Keyboard.dismiss(); // Dismiss keyboard before closing
+        Keyboard.dismiss();
         SheetManager.hide(sheetId);
         // Reset state when closing
         setConnectId('');
         setIsLoading(false);
+        setLoadingMessage('Connecting to account...');
+    };
+
+    const checkSubscription = async (connectId: string) => {
+        try {
+            const data = {
+                connectId,
+                customerPhone:user?.phone,
+            };
+    
+            const response = await apiService.post('/subscriptions/check', data);
+            return response.data;
+        } catch (error) {
+            console.error('Subscription check error:', error);
+            throw error;
+        }
     };
 
     const validateConnectId = (id: string): string | null => {
@@ -41,50 +66,91 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
         if (id.trim().length < 3) {
             return 'Connect ID must be at least 3 characters';
         }
-        // Add more validation rules as needed
-        return null; // Valid
+        return null;
     };
 
     const handleConnect = async () => {
-        // Dismiss keyboard first
         Keyboard.dismiss();
 
         const validationError = validateConnectId(connectId);
         if (validationError) {
-            return; // DynamicInput will show the error
+            return;
         }
 
         setIsLoading(true);
+        setLoadingMessage('Connecting to account...');
 
         try {
-            // Simulate API call to connect to internal account
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            // Step 1: Connect to internal account (your existing logic)
+            await new Promise(resolve => setTimeout(resolve, 1500));
 
-            // You can add actual API call here
-            // const response = await connectToInternalAccount(connectId);
+            // Step 2: Check subscription
+            setLoadingMessage('Verifying subscription...');
+            
+            const subscriptionResult = await checkSubscription(
+                connectId.trim(),
+            
+            );
+            console.log('subscriptionResult ',subscriptionResult)
 
-            if (payload?.onConnect) {
-                payload.onConnect(connectId.trim());
+            if (!subscriptionResult.isValid) {
+                // Handle invalid subscription
+                Alert.alert(
+                    'Subscription Issue',
+                    subscriptionResult.message || 'Your subscription is not valid or has expired.',
+                    [
+                        {
+                            text: 'Contact Support',
+                            onPress: () => {
+                                // Add your support contact logic here
+                                console.log('Contact support pressed');
+                            }
+                        },
+                        {
+                            text: 'Try Again',
+                            style: 'cancel'
+                        }
+                    ]
+                );
+                return;
             }
 
-            // Show success and close
+            // Step 3: Success - both connection and subscription are valid
+            if (payload?.onConnect) {
+                payload.onConnect(connectId.trim(), subscriptionResult.subscription);
+            }
+
+            const subscriptionInfo = subscriptionResult.subscription?.planName 
+                ? `\nSubscription: ${subscriptionResult.subscription.planName}`
+                : '';
+
             Alert.alert(
                 'Connected Successfully',
-                `Connected to internal account: ${connectId}`,
-                [{ text: 'OK', onPress: ()=>{
-                    handleClose()
-                    router.replace('/(connect)/(tabs)')
-                } }]
+                `Connected to internal account: ${connectId}${subscriptionInfo}`,
+                [{ 
+                    text: 'OK', 
+                    onPress: () => {
+                        handleClose();
+                        router.replace('/(connect)/(tabs)');
+                    } 
+                }]
             );
 
         } catch (error) {
+            console.error('Connection/Subscription error:', error);
+            
+            let errorMessage = 'Failed to connect. Please try again.';
+            
+           
+
             Alert.alert(
                 'Connection Failed',
-                'Failed to connect. Please check your Connect ID and try again.',
+                errorMessage,
                 [{ text: 'OK' }]
             );
         } finally {
             setIsLoading(false);
+            setLoadingMessage('Connecting to account...');
         }
     };
 
@@ -97,9 +163,9 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
                 paddingHorizontal: 0,
                 paddingBottom: 0,
             }}
-            closable={false} // Disable swipe to close to prevent accidental closing
+            closable={false}
             closeOnTouchBackdrop={false}
-            gestureEnabled={false} // Disable gesture to prevent glitches
+            gestureEnabled={false}
         >
             <View className="relative bg-white">
                 {/* Loading Overlay */}
@@ -111,7 +177,7 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
                                 className="mt-4 text-base text-black text-center"
                                 style={{ fontFamily: 'PlusJakartaSans-Medium' }}
                             >
-                                Connecting to account...
+                                {loadingMessage}
                             </Text>
                         </View>
                     </View>
@@ -121,7 +187,6 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
                     {/* Header */}
                     <View className="flex-row items-center justify-between mb-6">
                         <View className="flex-1">
-
                             <Text
                                 className="text-xl md:text-4xl text-center !leading-[30px] md:!leading-[46px] text-black"
                                 style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}
@@ -141,7 +206,6 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
 
                     {/* Form */}
                     <View className="mb-8">
-                        {/* Connect ID Input using DynamicInput */}
                         <DynamicInput
                             label="Connect ID"
                             placeholder="Enter your Connect ID"
@@ -173,7 +237,7 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
                                     className="text-white text-base ml-2"
                                     style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}
                                 >
-                                    Connecting...
+                                    {loadingMessage.includes('Verifying') ? 'Verifying...' : 'Connecting...'}
                                 </Text>
                             </View>
                         ) : (
