@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect } from 'react';
+import React, { useState, useLayoutEffect, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Modal, TextInput, Alert } from 'react-native';
 import { router, useNavigation } from 'expo-router';
 import { SheetManager } from 'react-native-actions-sheet';
@@ -90,7 +90,7 @@ const ServicesScreen = () => {
 
     // Separate current and completed requests
     const currentRequests = serviceRequests.filter(req => 
-        req.status === 'SCHEDULED' || req.status === 'IN_PROGRESS'
+         req.status !== 'COMPLETED' && req.status !== 'CANCELLED'
     );
     
     const serviceHistory = serviceRequests.filter(req => 

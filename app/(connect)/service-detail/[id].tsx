@@ -1,9 +1,11 @@
-import React, { useLayoutEffect } from 'react';
-import { View, Text, ScrollView, Image, TouchableOpacity } from 'react-native';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
+import { View, Text, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useNavigation, useLocalSearchParams } from 'expo-router';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import Svg, { Path, Circle } from 'react-native-svg';
+import { apiService } from '@/api/api';
 
+// Icons (keeping your existing icons)
 const CheckCircleIcon = ({ size = 20, color = "currentColor" }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <Circle cx="12" cy="12" r="10" />
@@ -34,18 +36,48 @@ const CalendarIcon = ({ size = 20, color = "currentColor" }) => (
   </Svg>
 );
 
-const StarIcon = ({ filled = false, size = 16 }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24" fill={filled ? "#fbbf24" : "none"} stroke="#fbbf24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <Path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+const MapPinIcon = ({ size = 16, color = "currentColor" }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <Path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+    <Circle cx="12" cy="10" r="3" />
+  </Svg>
+);
+
+const PhoneIcon = ({ size = 16, color = "currentColor" }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <Path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
   </Svg>
 );
 
 export default function ServiceDetailScreen() {
   const navigation = useNavigation();
   const { id } = useLocalSearchParams();
-  const { serviceRequests } = useSubscription();
-  
-  const service = serviceRequests.find(req => req.id === id);
+  const [service, setService] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+  fetchServiceRequest();
+  }, []);
+
+  const fetchServiceRequest = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await apiService.get(`/service-requests/${id}`);
+      
+      if (response.success) {
+        setService(response.data.serviceRequest);
+      } else {
+        setError('Failed to load service details');
+      }
+    } catch (err) {
+      console.log('error', err);
+      setError('Failed to load service details');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -69,39 +101,91 @@ export default function ServiceDetailScreen() {
     });
   }, [navigation]);
 
-  if (!service) {
+  const getStatusConfig = (status) => {
+    const configs = {
+      'COMPLETED': {
+        color: 'text-green-600 bg-green-100',
+        icon: <CheckCircleIcon size={20} color="#10b981" />
+      },
+      'SCHEDULED': {
+        color: 'text-blue-600 bg-blue-100',
+        icon: <ClockIcon size={20} color="#3b82f6" />
+      },
+      'IN_PROGRESS': {
+        color: 'text-orange-600 bg-orange-100',
+        icon: <ClockIcon size={20} color="#f59e0b" />
+      },
+      'CREATED': {
+        color: 'text-gray-600 bg-gray-100',
+        icon: <ClockIcon size={20} color="#6b7280" />
+      }
+    };
+    return configs[status] || configs['CREATED'];
+  };
+
+  const formatServiceType = (type) => {
+    return type.split('_').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    ).join(' ');
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const parseImages = (imagesField) => {
+    if (!imagesField) return [];
+    if (Array.isArray(imagesField)) return imagesField;
+    try {
+      return JSON.parse(imagesField);
+    } catch {
+      return [];
+    }
+  };
+
+  const getAssignedTechnicianName = () => {
+    if (service.assignedAgent) {
+      return service.assignedAgent.name;
+    }
+    return service.assignedToId || 'Unassigned';
+  };
+
+  if (loading) {
     return (
       <View className="flex-1 items-center justify-center bg-gray-50">
-        <Text className="text-lg text-gray-600" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
-          Service not found
+        <ActivityIndicator size="large" color="#4548b9" />
+        <Text className="text-lg text-gray-600 mt-4" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
+          Loading service details...
         </Text>
       </View>
     );
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'COMPLETED':
-        return 'text-green-600 bg-green-100';
-      case 'SCHEDULED':
-        return 'text-blue-600 bg-blue-100';
-      case 'IN_PROGRESS':
-        return 'text-orange-600 bg-orange-100';
-      default:
-        return 'text-gray-600 bg-gray-100';
-    }
-  };
+  if (error || !service) {
+    return (
+      <View className="flex-1 items-center justify-center bg-gray-50 p-6">
+        <Text className="text-lg text-gray-600 text-center mb-4" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
+          {error || 'Service not found'}
+        </Text>
+        <TouchableOpacity 
+          onPress={fetchServiceRequest}
+          className="bg-[#4548b9] px-6 py-3 rounded-lg"
+        >
+          <Text className="text-white text-center" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
+            Retry
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'COMPLETED':
-        return <CheckCircleIcon size={20} color="#10b981" />;
-      case 'SCHEDULED':
-        return <ClockIcon size={20} color="#3b82f6" />;
-      default:
-        return <ClockIcon size={20} color="#6b7280" />;
-    }
-  };
+  const statusConfig = getStatusConfig(service.status);
+  const beforeImages = parseImages(service.beforeImages);
+  const afterImages = parseImages(service.afterImages);
 
   return (
     <View className="flex-1 bg-gray-50">
@@ -112,30 +196,41 @@ export default function ServiceDetailScreen() {
             <View className="flex-row items-start justify-between mb-4">
               <View className="flex-1">
                 <Text className="text-xl text-gray-900 mb-2" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
-                  {service.type.charAt(0).toUpperCase() + service.type.slice(1).toLowerCase()}
+                  {formatServiceType(service.type)}
                 </Text>
                 <Text className="text-sm text-gray-600" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
                   Service ID: #{service.id}
                 </Text>
+                {service.product && (
+                  <Text className="text-sm text-gray-600 mt-1" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
+                    Product: {service.product.name}
+                  </Text>
+                )}
               </View>
-              <View className={`px-3 py-1 rounded-full ${getStatusColor(service.status)}`}>
+              <View className={`px-3 py-1 rounded-full flex-row items-center gap-2 ${statusConfig.color}`}>
+                {statusConfig.icon}
                 <Text className="text-xs capitalize" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
-                  {service.status}
+                  {service.status.replace('_', ' ')}
                 </Text>
               </View>
             </View>
 
             {/* Service Timeline */}
-            <View className="border-t border-gray-100 pt-4">
-              <View className="flex-row items-center gap-4 mb-3">
+            <View className="border-t border-gray-100 pt-4 gap-y-3">
+              <View className="flex-row items-center gap-4">
                 <CalendarIcon size={16} color="#6B7280" />
                 <View>
                   <Text className="text-sm text-gray-600" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
-                    Requested: {new Date(service.createdAt).toLocaleDateString()}
+                    Requested: {formatDate(service.createdAt)}
                   </Text>
+                  {service.scheduledDate && (
+                    <Text className="text-sm text-gray-600" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
+                      Scheduled: {formatDate(service.scheduledDate)}
+                    </Text>
+                  )}
                   {service.completedDate && (
                     <Text className="text-sm text-gray-600" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
-                      Completed: {new Date(service.completedDate).toLocaleDateString()}
+                      Completed: {formatDate(service.completedDate)}
                     </Text>
                   )}
                 </View>
@@ -144,11 +239,49 @@ export default function ServiceDetailScreen() {
               <View className="flex-row items-center gap-4">
                 <UserIcon size={16} color="#6B7280" />
                 <Text className="text-sm text-gray-600" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
-                  Technician: {service.assignedToId || 'Unassigned'}
+                  Technician: {getAssignedTechnicianName()}
+                </Text>
+              </View>
+
+              {/* Installation specific details */}
+              {service.installationRequest && (
+                <>
+                  <View className="flex-row items-center gap-4">
+                    <MapPinIcon size={16} color="#6B7280" />
+                    <Text className="text-sm text-gray-600 flex-1" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
+                      {service.installationRequest.installationAddress}
+                    </Text>
+                  </View>
+                  <View className="flex-row items-center gap-4">
+                    <PhoneIcon size={16} color="#6B7280" />
+                    <Text className="text-sm text-gray-600" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
+                      Contact: {service.installationRequest.phoneNumber}
+                    </Text>
+                  </View>
+                </>
+              )}
+            </View>
+          </View>
+
+          {/* Customer Information */}
+          {service.customer && (
+            <View className="bg-white rounded-xl shadow-sm p-6">
+              <Text className="text-lg text-gray-900 mb-3" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
+                Customer Information
+              </Text>
+              <View className="gap-y-2">
+                <Text className="text-gray-700" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
+                  Name: {service.customer.name}
+                </Text>
+                <Text className="text-gray-700" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
+                  Phone: {service.customer.phone}
+                </Text>
+                <Text className="text-gray-700" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
+                  City: {service.customer.city}
                 </Text>
               </View>
             </View>
-          </View>
+          )}
 
           {/* Service Description */}
           <View className="bg-white rounded-xl shadow-sm p-6">
@@ -161,14 +294,14 @@ export default function ServiceDetailScreen() {
           </View>
 
           {/* Before Photos */}
-          {service.beforeImages && JSON.parse(service.beforeImages).length > 0 && (
+          {beforeImages.length > 0 && (
             <View className="bg-white rounded-xl shadow-sm p-6">
               <Text className="text-lg text-gray-900 mb-4" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
-                Before Service
+                Before Service ({beforeImages.length})
               </Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <View className="flex-row gap-3">
-                  {JSON.parse(service.beforeImages).map((photo, index) => (
+                  {beforeImages.map((photo, index) => (
                     <Image
                       key={index}
                       source={{ uri: photo }}
@@ -182,14 +315,14 @@ export default function ServiceDetailScreen() {
           )}
 
           {/* After Photos */}
-          {service.afterImages && JSON.parse(service.afterImages).length > 0 && (
+          {afterImages.length > 0 && (
             <View className="bg-white rounded-xl shadow-sm p-6">
               <Text className="text-lg text-gray-900 mb-4" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
-                After Service
+                After Service ({afterImages.length})
               </Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <View className="flex-row gap-3">
-                  {JSON.parse(service.afterImages).map((photo, index) => (
+                  {afterImages.map((photo, index) => (
                     <Image
                       key={index}
                       source={{ uri: photo }}
@@ -202,15 +335,49 @@ export default function ServiceDetailScreen() {
             </View>
           )}
 
-          {/* Service Cost */}
-          {service.requirePayment && (
+          {/* Payment Information */}
+          {(service.requirePayment || service.installationRequest?.razorpayPaymentLink) && (
             <View className="bg-white rounded-xl shadow-sm p-6">
               <Text className="text-lg text-gray-900 mb-3" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
-                Service Cost
+                Payment Information
               </Text>
-              <Text className="text-2xl text-[#4548b9]" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
-                Payment Required
+              {service.requirePayment ? (
+                <Text className="text-2xl text-[#4548b9]" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
+                  Payment Required
+                </Text>
+              ) : (
+                <Text className="text-lg text-green-600" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
+                  Payment Completed
+                </Text>
+              )}
+              {service.installationRequest?.autoPaymentEnabled && (
+                <Text className="text-sm text-gray-600 mt-2" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
+                  Auto-payment enabled for subscription
+                </Text>
+              )}
+            </View>
+          )}
+
+          {/* Subscription Information */}
+          {service.subscription && (
+            <View className="bg-white rounded-xl shadow-sm p-6">
+              <Text className="text-lg text-gray-900 mb-3" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
+                Subscription Details
               </Text>
+              <View className="gap-y-2">
+                <Text className="text-gray-700" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
+                  Plan: {service.subscription.planName}
+                </Text>
+                <Text className="text-gray-700" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
+                  Connect ID: {service.subscription.connectId}
+                </Text>
+                <Text className="text-gray-700" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
+                  Monthly Amount: ₹{service.subscription.monthlyAmount}
+                </Text>
+                <Text className="text-gray-700" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
+                  Next Payment: {formatDate(service.subscription.nextPaymentDate)}
+                </Text>
+              </View>
             </View>
           )}
 
