@@ -17,6 +17,7 @@ import { router } from 'expo-router';
 import { apiService } from '@/api/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
+import { useEffect } from 'react';
 
 
 interface LoginActionSheetProps {

@@ -1,38 +1,8 @@
 import React, { useLayoutEffect } from 'react';
 import { View, Text, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { useNavigation, useLocalSearchParams } from 'expo-router';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import Svg, { Path, Circle } from 'react-native-svg';
-
-// Mock data - replace with actual API call
-const getServiceDetails = (id: string) => {
-  const services = {
-    '1': {
-      id: '1',
-      type: 'Filter Replacement',
-      date: '15 Feb 2024',
-      status: 'completed',
-      technician: 'Rajesh Kumar',
-      description: 'Replaced all filters and tested water quality. Customer reported improved taste and clarity.',
-      requestedDate: '10 Feb 2024',
-      completedDate: '15 Feb 2024',
-      photos: [
-        'https://images.pexels.com/photos/416978/pexels-photo-416978.jpeg',
-        'https://images.pexels.com/photos/927437/pexels-photo-927437.jpeg'
-      ],
-      beforePhotos: [
-        'https://images.pexels.com/photos/2544829/pexels-photo-2544829.jpeg'
-      ],
-      afterPhotos: [
-        'https://images.pexels.com/photos/1000084/pexels-photo-1000084.jpeg'
-      ],
-      customerFeedback: 'Excellent service! The technician was professional and explained everything clearly.',
-      rating: 5,
-      cost: '₹500',
-      nextServiceDue: '15 May 2024'
-    }
-  };
-  return services[id] || null;
-};
 
 const CheckCircleIcon = ({ size = 20, color = "currentColor" }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -73,7 +43,9 @@ const StarIcon = ({ filled = false, size = 16 }) => (
 export default function ServiceDetailScreen() {
   const navigation = useNavigation();
   const { id } = useLocalSearchParams();
-  const service = getServiceDetails(id as string);
+  const { serviceRequests } = useSubscription();
+  
+  const service = serviceRequests.find(req => req.id === id);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -109,11 +81,11 @@ export default function ServiceDetailScreen() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed':
+      case 'COMPLETED':
         return 'text-green-600 bg-green-100';
-      case 'scheduled':
+      case 'SCHEDULED':
         return 'text-blue-600 bg-blue-100';
-      case 'in-progress':
+      case 'IN_PROGRESS':
         return 'text-orange-600 bg-orange-100';
       default:
         return 'text-gray-600 bg-gray-100';
@@ -122,9 +94,9 @@ export default function ServiceDetailScreen() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'completed':
+      case 'COMPLETED':
         return <CheckCircleIcon size={20} color="#10b981" />;
-      case 'scheduled':
+      case 'SCHEDULED':
         return <ClockIcon size={20} color="#3b82f6" />;
       default:
         return <ClockIcon size={20} color="#6b7280" />;
@@ -140,7 +112,7 @@ export default function ServiceDetailScreen() {
             <View className="flex-row items-start justify-between mb-4">
               <View className="flex-1">
                 <Text className="text-xl text-gray-900 mb-2" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
-                  {service.type}
+                  {service.type.charAt(0).toUpperCase() + service.type.slice(1).toLowerCase()}
                 </Text>
                 <Text className="text-sm text-gray-600" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
                   Service ID: #{service.id}
@@ -159,11 +131,11 @@ export default function ServiceDetailScreen() {
                 <CalendarIcon size={16} color="#6B7280" />
                 <View>
                   <Text className="text-sm text-gray-600" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
-                    Requested: {service.requestedDate}
+                    Requested: {new Date(service.createdAt).toLocaleDateString()}
                   </Text>
                   {service.completedDate && (
                     <Text className="text-sm text-gray-600" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
-                      Completed: {service.completedDate}
+                      Completed: {new Date(service.completedDate).toLocaleDateString()}
                     </Text>
                   )}
                 </View>
@@ -172,7 +144,7 @@ export default function ServiceDetailScreen() {
               <View className="flex-row items-center gap-4">
                 <UserIcon size={16} color="#6B7280" />
                 <Text className="text-sm text-gray-600" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
-                  Technician: {service.technician}
+                  Technician: {service.assignedToId || 'Unassigned'}
                 </Text>
               </View>
             </View>
@@ -189,14 +161,14 @@ export default function ServiceDetailScreen() {
           </View>
 
           {/* Before Photos */}
-          {service.beforePhotos && service.beforePhotos.length > 0 && (
+          {service.beforeImages && JSON.parse(service.beforeImages).length > 0 && (
             <View className="bg-white rounded-xl shadow-sm p-6">
               <Text className="text-lg text-gray-900 mb-4" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
                 Before Service
               </Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <View className="flex-row gap-3">
-                  {service.beforePhotos.map((photo, index) => (
+                  {JSON.parse(service.beforeImages).map((photo, index) => (
                     <Image
                       key={index}
                       source={{ uri: photo }}
@@ -210,14 +182,14 @@ export default function ServiceDetailScreen() {
           )}
 
           {/* After Photos */}
-          {service.afterPhotos && service.afterPhotos.length > 0 && (
+          {service.afterImages && JSON.parse(service.afterImages).length > 0 && (
             <View className="bg-white rounded-xl shadow-sm p-6">
               <Text className="text-lg text-gray-900 mb-4" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
                 After Service
               </Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <View className="flex-row gap-3">
-                  {service.afterPhotos.map((photo, index) => (
+                  {JSON.parse(service.afterImages).map((photo, index) => (
                     <Image
                       key={index}
                       source={{ uri: photo }}
@@ -231,48 +203,13 @@ export default function ServiceDetailScreen() {
           )}
 
           {/* Service Cost */}
-          {service.cost && (
+          {service.requirePayment && (
             <View className="bg-white rounded-xl shadow-sm p-6">
               <Text className="text-lg text-gray-900 mb-3" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
                 Service Cost
               </Text>
               <Text className="text-2xl text-[#4548b9]" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
-                {service.cost}
-              </Text>
-            </View>
-          )}
-
-          {/* Customer Feedback */}
-          {service.customerFeedback && (
-            <View className="bg-white rounded-xl shadow-sm p-6">
-              <Text className="text-lg text-gray-900 mb-3" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
-                Customer Feedback
-              </Text>
-              
-              {/* Rating */}
-              <View className="flex-row items-center gap-2 mb-3">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <StarIcon key={star} filled={star <= service.rating} />
-                ))}
-                <Text className="text-sm text-gray-600 ml-2" style={{ fontFamily: 'PlusJakartaSans-Medium' }}>
-                  {service.rating}/5
-                </Text>
-              </View>
-
-              <Text className="text-gray-700 leading-6" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
-                {service.customerFeedback}
-              </Text>
-            </View>
-          )}
-
-          {/* Next Service Due */}
-          {service.nextServiceDue && (
-            <View className="bg-blue-50 rounded-xl p-6 border border-blue-100">
-              <Text className="text-lg text-blue-900 mb-2" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
-                Next Service Due
-              </Text>
-              <Text className="text-blue-700" style={{ fontFamily: 'PlusJakartaSans-Medium' }}>
-                {service.nextServiceDue}
+                Payment Required
               </Text>
             </View>
           )}
@@ -287,7 +224,7 @@ export default function ServiceDetailScreen() {
             
             <TouchableOpacity className="flex-1 bg-[#4548b9] py-4 rounded-xl">
               <Text className="text-center text-white" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
-                Contact Technician
+                Contact Support
               </Text>
             </TouchableOpacity>
           </View>
