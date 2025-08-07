@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 import { X, TriangleAlert as AlertTriangle } from 'lucide-react-native';
 import { GlobalLoader } from '../GlobalLoader';
+import { apiService } from '@/api/api';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 
 interface CancelSubscriptionActionSheetProps {
   sheetId: string;
@@ -22,6 +24,8 @@ export function CancelSubscriptionActionSheet({ sheetId, payload }: CancelSubscr
   const [reason, setReason] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const { currentSession } = useSubscription();
 
   const handleClose = () => {
     Keyboard.dismiss();
@@ -37,17 +41,27 @@ export function CancelSubscriptionActionSheet({ sheetId, payload }: CancelSubscr
       return;
     }
 
+    console.log('currentSession ', JSON.stringify(currentSession))
+
     setIsLoading(true);
 
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const result = await apiService.post(`/subscriptions/cancelRequest/${currentSession?.subscription.id}`, {
+        reason: reason
+      })
 
-      if (payload?.onCancel) {
-        payload.onCancel(reason.trim());
+
+
+      if (result.success) {
+        setIsSubmitted(true);
+
+        Alert.alert('Submitted Sucessfully')
+        handleClose()
+      } else {
+        Alert.alert(result.error)
       }
 
-      setIsSubmitted(true);
     } catch (error) {
       Alert.alert('Error', 'Something went wrong. Please try again.');
     } finally {
@@ -127,16 +141,14 @@ export function CancelSubscriptionActionSheet({ sheetId, payload }: CancelSubscr
               {/* Action Buttons */}
               <View className="gap-3">
                 <TouchableOpacity
-                  className={`py-4 rounded-xl ${
-                    reason.trim() ? 'bg-red-600' : 'bg-gray-300'
-                  }`}
+                  className={`py-4 rounded-xl ${reason.trim() ? 'bg-red-600' : 'bg-gray-300'
+                    }`}
                   onPress={handleCancel}
                   disabled={!reason.trim() || isLoading}
                 >
                   <Text
-                    className={`text-center text-base ${
-                      reason.trim() ? 'text-white' : 'text-gray-500'
-                    }`}
+                    className={`text-center text-base ${reason.trim() ? 'text-white' : 'text-gray-500'
+                      }`}
                     style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}
                   >
                     Submit Cancellation Request

@@ -149,10 +149,7 @@ const ProfileScreen = () => {
             onPress: () => {
                 SheetManager.show(SHEET_IDS.CANCEL_SUBSCRIPTION_SHEET, {
                     payload: {
-                        onCancel: (reason) => {
-                            console.log('Subscription cancelled with reason:', reason);
-                            // Handle cancellation logic here
-                        }
+                       
                     }
                 });
             }

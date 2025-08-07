@@ -40,7 +40,8 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
     mobile: '',
     city: null as any, // Store the complete franchise object instead of just city name
     address: '',
-    coordinates: null as { latitude: number; longitude: number } | null
+    coordinates: null as { latitude: number; longitude: number } | null,
+    type: 'RENTAL'
   });
 
   const [searchText, setSearchText] = useState('');
@@ -64,7 +65,7 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
 
 
   const [selectedCity, setSelectedCity] = useState<SelectOption | null>(null);
-
+  const [selectedType, setSelectedType] = useState<SelectOption | null>(null);
 
   // Validation functions for DynamicInput
   const validateName = (name: string): string | null => {
@@ -93,12 +94,19 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
     }
     return null;
   };
+  const validateTye = (type: SelectOption | null): string | null => {
+    if (!type) {
+      return 'Please select a city';
+    }
+    return null;
+  };
 
   const validateStep1 = () => {
     return (
       validateName(formData.name) === null &&
       validateMobile(formData.mobile) === null &&
-      validateCity(selectedCity) === null
+      validateCity(selectedCity) === null &&
+      validateCity(selectedType) === null
     );
   };
 
@@ -130,9 +138,9 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
     try {
       if (payload?.onSubmit) {
         console.log('selectedCity ', selectedCity)
-        await payload.onSubmit({ ...formData, city: selectedCity?.value });
+        await payload.onSubmit({ ...formData, city: selectedCity?.value, type: selectedType?.value });
       }
-      
+
       handleClose();
       router.push('/(newuser)/successrequest');
     } catch (error) {
@@ -300,7 +308,33 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
                       maxLength={10}
                       editable={!isLoading}
                       containerStyle={{ marginBottom: 0 }}
+
                     />
+                    <View className="w-full">
+                      <DynamicSelect
+                        options={[{
+                          id: 'RENTAL',
+                          label: 'RENTAL',
+                          value: 'RENTAL', // Use franchise ID as value
+
+                        }, {
+                          id: 'PURCHASE',
+                          label: 'PURCHASE',
+                          value: 'PURCHASE', // Use franchise ID as value
+
+                        }]}
+                        onSelect={setSelectedType}
+                        value={selectedType}
+                        validation={validateTye}
+                        borderRadius={12}
+                        searchable={false}
+                        searchPlaceholder="Search cities..."
+                        modalTitle="Select Rental"
+                        disabled={isLoading}
+                        required
+                        containerStyle={{ marginBottom: 0 }}
+                      />
+                    </View>
 
                     {/* City Field using DynamicSelect */}
                     <View className="w-full">

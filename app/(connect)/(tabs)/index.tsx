@@ -138,74 +138,74 @@ const WaterPurifierApp = () => {
                 </View>
             </LinearGradient> */}
 
-             {/* Rental Plan Card */}
-             <View className="bg-[#4548b9] mx-4 rounded-2xl shadow-sm p-5">
-                    <View className="flex-row items-center justify-between mb-4">
-                        <Text className="text-xl text-white" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
-                            {subscription?.planName || 'Your Plan Details'}
-                        </Text>
-                        <View className="bg-green-100 px-3 py-1 rounded-full">
-                            <Text className="text-green-700 text-xs" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
-                                {subscription?.status || 'ACTIVE'}
-                            </Text>
-                        </View>
-                    </View>
-                    
-                    <Text className="text-white mb-4 text-base" style={{ fontFamily: 'PlusJakartaSans-Medium' }}>
-                        {product?.name || 'AquaPure Pro Model'}
+            {/* Rental Plan Card */}
+            <View className="bg-[#4548b9] mx-4 rounded-2xl shadow-sm p-5">
+                <View className="flex-row items-center justify-between mb-4">
+                    <Text className="text-xl text-white" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
+                        {subscription?.planName || 'Your Plan Details'}
                     </Text>
-
-                    <View className="flex-row gap-4 mb-6">
-                        <View className="flex-1 bg-gray-50 rounded-xl p-4">
-                            <Text className="text-sm text-black mb-1" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
-                                Plan Start
-                            </Text>
-                            <Text className="text-base text-gray-900" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
-                                {subscription?.startDate ? new Date(subscription.startDate).toLocaleDateString() : '21 May 2023'}
-                            </Text>
-                        </View>
-                        <View className="flex-1 bg-gray-50 rounded-xl p-4">
-                            <Text className="text-sm text-gray-600 mb-1" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
-                                Next Payment
-                            </Text>
-                            <Text className="text-base text-gray-900" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
-                                {subscription?.nextPaymentDate ? new Date(subscription.nextPaymentDate).toLocaleDateString() : '20 May 2025'}
-                            </Text>
-                        </View>
-                    </View>
-
-                    <View className="border-t border-gray-100 pt-4 hidden">
-                        <Text className="text-base text-gray-900 mb-3" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
-                            Included Services
+                    <View className="bg-green-100 px-3 py-1 rounded-full">
+                        <Text className="text-green-700 text-xs" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
+                            {subscription?.status || 'ACTIVE'}
                         </Text>
-                        <View className="gap-y-3">
-                            <View className="flex-row items-center gap-3">
-                                <View className="w-6 h-6 bg-green-100 rounded-full items-center justify-center">
-                                    <CheckCircleIcon size={14} color="#10b981" />
-                                </View>
-                                <Text className="text-sm text-gray-700 flex-1" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
-                                    Quarterly Filter Replacement
-                                </Text>
+                    </View>
+                </View>
+
+                <Text className="text-white mb-4 text-base" style={{ fontFamily: 'PlusJakartaSans-Medium' }}>
+                    {product?.name || 'AquaPure Pro Model'}
+                </Text>
+
+                <View className="flex-row gap-4 mb-6">
+                    <View className="flex-1 bg-gray-50 rounded-xl p-4">
+                        <Text className="text-sm text-black mb-1" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
+                            Plan Start
+                        </Text>
+                        <Text className="text-base text-gray-900" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
+                            {subscription?.startDate ? new Date(subscription.startDate).toLocaleDateString() : '21 May 2023'}
+                        </Text>
+                    </View>
+                    <View className="flex-1 bg-gray-50 rounded-xl p-4">
+                        <Text className="text-sm text-gray-600 mb-1" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
+                            Next Payment
+                        </Text>
+                        <Text className="text-base text-gray-900" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
+                            {subscription?.nextPaymentDate ? new Date(subscription.nextPaymentDate).toLocaleDateString() : '20 May 2025'}
+                        </Text>
+                    </View>
+                </View>
+
+                <View className="border-t border-gray-100 pt-4 hidden">
+                    <Text className="text-base text-gray-900 mb-3" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
+                        Included Services
+                    </Text>
+                    <View className="gap-y-3">
+                        <View className="flex-row items-center gap-3">
+                            <View className="w-6 h-6 bg-green-100 rounded-full items-center justify-center">
+                                <CheckCircleIcon size={14} color="#10b981" />
                             </View>
-                            <View className="flex-row items-center gap-3">
-                                <View className="w-6 h-6 bg-green-100 rounded-full items-center justify-center">
-                                    <CheckCircleIcon size={14} color="#10b981" />
-                                </View>
-                                <Text className="text-sm text-gray-700 flex-1" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
-                                    Annual Maintenance Check
-                                </Text>
+                            <Text className="text-sm text-gray-700 flex-1" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
+                                Quarterly Filter Replacement
+                            </Text>
+                        </View>
+                        <View className="flex-row items-center gap-3">
+                            <View className="w-6 h-6 bg-green-100 rounded-full items-center justify-center">
+                                <CheckCircleIcon size={14} color="#10b981" />
                             </View>
-                            <View className="flex-row items-center gap-3">
-                                <View className="w-6 h-6 bg-green-100 rounded-full items-center justify-center">
-                                    <CheckCircleIcon size={14} color="#10b981" />
-                                </View>
-                                <Text className="text-sm text-gray-700 flex-1" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
-                                    24/7 Customer Support
-                                </Text>
+                            <Text className="text-sm text-gray-700 flex-1" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
+                                Annual Maintenance Check
+                            </Text>
+                        </View>
+                        <View className="flex-row items-center gap-3">
+                            <View className="w-6 h-6 bg-green-100 rounded-full items-center justify-center">
+                                <CheckCircleIcon size={14} color="#10b981" />
                             </View>
+                            <Text className="text-sm text-gray-700 flex-1" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
+                                24/7 Customer Support
+                            </Text>
                         </View>
                     </View>
                 </View>
+            </View>
 
 
             <View className="p-4 gap-y-6 pb-24">
@@ -222,7 +222,7 @@ const WaterPurifierApp = () => {
                             This month
                         </Text>
                     </View>
-                    
+
                     <View className="flex-1 bg-white rounded-xl p-4 shadow-sm">
                         <Text className="text-2xl text-gray-900 mb-1" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
                             98%
@@ -249,7 +249,7 @@ const WaterPurifierApp = () => {
                             <View className="flex-row items-center gap-2">
                                 <CalendarIcon size={16} color="#6B7280" />
                                 <Text className="text-sm text-gray-600" style={{ fontFamily: 'PlusJakartaSans-Medium' }}>
-                                    May 20, 2024
+                                    {subscription?.nextPaymentDate ? new Date(subscription.nextPaymentDate).toLocaleDateString() : '20 May 2025'}
                                 </Text>
                             </View>
                         </View>
@@ -271,8 +271,8 @@ const WaterPurifierApp = () => {
                         </View>
                     </View>
 
-                    <TouchableOpacity 
-                        className="bg-[#4548b9] rounded-xl py-4 flex-row items-center justify-center gap-2 shadow-lg"
+                    <TouchableOpacity
+                        className="bg-[#4548b9] hidden rounded-xl py-4 flex-row items-center justify-center gap-2 shadow-lg"
                         onPress={() => router.push('/(connect)/(tabs)/payments')}
                     >
                         <Text className="text-white text-base" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
@@ -282,7 +282,7 @@ const WaterPurifierApp = () => {
                     </TouchableOpacity>
                 </View>
 
-               
+
                 {/* Recent Activity */}
                 <View>
                     <View className="flex-row items-center justify-between mb-4">
@@ -295,15 +295,14 @@ const WaterPurifierApp = () => {
                             </Text>
                         </TouchableOpacity>
                     </View>
-                    
+
                     <View className="gap-y-3">
                         {recentServiceRequests.length > 0 ? (
                             recentServiceRequests.map((request) => (
                                 <View key={request.id} className="bg-white rounded-xl shadow-sm p-4 flex-row items-center gap-4">
-                                    <View className={`w-12 h-12 rounded-full items-center justify-center ${
-                                        request.status === 'COMPLETED' ? 'bg-green-50' : 
-                                        request.status === 'SCHEDULED' ? 'bg-blue-50' : 'bg-orange-50'
-                                    }`}>
+                                    <View className={`w-12 h-12 rounded-full items-center justify-center ${request.status === 'COMPLETED' ? 'bg-green-50' :
+                                            request.status === 'SCHEDULED' ? 'bg-blue-50' : 'bg-orange-50'
+                                        }`}>
                                         {request.status === 'COMPLETED' ? (
                                             <CheckCircle2Icon size={24} color="#10b981" />
                                         ) : (
@@ -318,14 +317,12 @@ const WaterPurifierApp = () => {
                                             {new Date(request.createdAt).toLocaleDateString()} • {request.status}
                                         </Text>
                                     </View>
-                                    <View className={`px-3 py-1 rounded-full ${
-                                        request.status === 'COMPLETED' ? 'bg-green-100' : 
-                                        request.status === 'SCHEDULED' ? 'bg-blue-100' : 'bg-orange-100'
-                                    }`}>
-                                        <Text className={`text-xs ${
-                                            request.status === 'COMPLETED' ? 'text-green-700' : 
-                                            request.status === 'SCHEDULED' ? 'text-blue-700' : 'text-orange-700'
-                                        }`} style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
+                                    <View className={`px-3 py-1 rounded-full ${request.status === 'COMPLETED' ? 'bg-green-100' :
+                                            request.status === 'SCHEDULED' ? 'bg-blue-100' : 'bg-orange-100'
+                                        }`}>
+                                        <Text className={`text-xs ${request.status === 'COMPLETED' ? 'text-green-700' :
+                                                request.status === 'SCHEDULED' ? 'text-blue-700' : 'text-orange-700'
+                                            }`} style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
                                             {request.status}
                                         </Text>
                                     </View>
@@ -346,9 +343,9 @@ const WaterPurifierApp = () => {
                     <Text className="text-lg text-gray-900 mb-4" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
                         Quick Actions
                     </Text>
-                    
+
                     <View className="gap-3">
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             className="bg-[#4548b9] rounded-xl py-4 px-5 flex-row items-center justify-between"
                             onPress={() => router.push('/(connect)/(tabs)/requests')}
                         >
@@ -357,8 +354,8 @@ const WaterPurifierApp = () => {
                             </Text>
                             <ArrowRightIcon size={16} color="white" />
                         </TouchableOpacity>
-                        
-                        <TouchableOpacity 
+
+                        <TouchableOpacity
                             className="bg-gray-100 rounded-xl py-4 px-5 flex-row items-center justify-between"
                             onPress={() => router.push('/(connect)/(tabs)/payments')}
                         >

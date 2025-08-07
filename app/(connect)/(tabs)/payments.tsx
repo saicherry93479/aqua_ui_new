@@ -12,12 +12,7 @@ const CreditCardIcon = ({ size = 24, color = "currentColor" }) => (
     </Svg>
 );
 
-const CheckCircleIcon = ({ size = 20, color = "currentColor" }) => (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <Circle cx="12" cy="12" r="10" />
-        <Path d="m9 12 2 2 4-4" />
-    </Svg>
-);
+
 
 const DownloadIcon = ({ size = 20, color = "currentColor" }) => (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -39,6 +34,8 @@ const CalendarIcon = ({ size = 20, color = "currentColor" }) => (
 const PaymentsScreen = () => {
     const navigation = useNavigation();
     const { currentSession } = useSubscription();
+
+
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -92,7 +89,7 @@ const PaymentsScreen = () => {
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View className="p-4 gap-y-6 pb-24">
                     {/* Upcoming Payment Card */}
-                    <View className="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-6 border border-orange-100">
+                    <View className="bg-white rounded-2xl p-6 border border-orange-100">
                         <View className="flex-row items-center gap-3 mb-4">
                             <View className="w-12 h-12 rounded-full bg-[#4548b9] items-center justify-center">
                                 <CalendarIcon size={20} color="white" />
@@ -121,7 +118,7 @@ const PaymentsScreen = () => {
                             </Text>
                         </View>
 
-                        <TouchableOpacity className="bg-[#4548b9] rounded-xl py-4 shadow-lg">
+                        <TouchableOpacity   className="bg-[#4548b9] rounded-xl py-4 hidden  shadow-lg">
                             <Text className="text-white text-center text-base" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
                                 Pay Now
                             </Text>
@@ -210,7 +207,7 @@ const PaymentsScreen = () => {
                     </View>
 
                     {/* Auto-pay Setup */}
-                    <View className="bg-white rounded-2xl shadow-sm p-6">
+                    {/* <View className="bg-white rounded-2xl shadow-sm p-6">
                         <Text className="text-lg text-gray-900 mb-3" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
                             Auto-Pay Setup
                         </Text>
@@ -222,7 +219,7 @@ const PaymentsScreen = () => {
                                 Setup Auto-Pay
                             </Text>
                         </TouchableOpacity>
-                    </View>
+                    </View> */}
                 </View>
             </ScrollView>
         </View>

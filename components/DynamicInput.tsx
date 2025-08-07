@@ -125,6 +125,7 @@ export const DynamicInput: React.FC<DynamicInputProps> = ({
         {...textInputProps}
       />
 
+      
       {/* Error Message */}
       {currentError && (
         <Text

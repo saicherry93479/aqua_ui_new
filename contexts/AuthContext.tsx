@@ -9,6 +9,7 @@ import {
 } from '@react-native-firebase/auth';
 import { router } from 'expo-router';
 import { apiService } from '@/api/api';
+import { PushNotificationService } from '@/utils/PushNotificationService';
 
 export enum UserRole {
   CUSTOMER = 'customer',
@@ -90,10 +91,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   });
 
   const isAuthenticated = !!user;
+  const pushNotificationService = PushNotificationService.getInstance();
 
   useEffect(() => {
     initializeAuth();
+    const listeners = pushNotificationService.setupNotificationListeners();
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      // Initialize push notifications after successful login
+      pushNotificationService.initializePushNotifications();
+    }
+  }, [user]);
 
   const initializeAuth = async () => {
     try {

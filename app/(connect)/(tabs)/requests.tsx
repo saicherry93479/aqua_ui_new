@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect, useEffect } from 'react';
+import React, { useState, useLayoutEffect, useEffect, use } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Modal, TextInput, Alert } from 'react-native';
 import { router, useNavigation } from 'expo-router';
 import { SheetManager } from 'react-native-actions-sheet';
@@ -44,22 +44,17 @@ const CheckCircleIcon = ({ size = 20, color = "currentColor" }) => (
     </Svg>
 );
 
-const XIcon = ({ size = 24, color = "currentColor" }) => (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <Path d="M18 6L6 18" />
-        <Path d="M6 6l12 12" />
-    </Svg>
-);
+
 
 const ServicesScreen = () => {
     const navigation = useNavigation();
     const { currentSession, serviceRequests, refreshServiceRequests, createServiceRequest } = useSubscription();
-
+    const [refresh, setRefresh] = useState(false)
     useEffect(() => {
-        if (currentSession) {
-            refreshServiceRequests();
-        }
-    }, [currentSession]);
+
+        refreshServiceRequests();
+
+    }, [currentSession, refresh]);
     useLayoutEffect(() => {
         navigation.setOptions({
             headerTitle: () => (
@@ -89,11 +84,11 @@ const ServicesScreen = () => {
     ];
 
     // Separate current and completed requests
-    const currentRequests = serviceRequests.filter(req => 
-         req.status !== 'COMPLETED' && req.status !== 'CANCELLED'
+    const currentRequests = serviceRequests.filter(req =>
+        req.status !== 'COMPLETED' && req.status !== 'CANCELLED'
     );
-    
-    const serviceHistory = serviceRequests.filter(req => 
+
+    const serviceHistory = serviceRequests.filter(req =>
         req.status === 'COMPLETED' || req.status === 'CANCELLED'
     );
 
@@ -117,6 +112,7 @@ const ServicesScreen = () => {
                 'Your service request has been submitted successfully. Our team will contact you within 24 hours.',
                 [{ text: 'OK' }]
             );
+            setRefresh(refresh => !refresh)
         } catch (error) {
             console.error('Error submitting service request:', error);
             Alert.alert('Error', 'Failed to submit service request. Please try again.');
@@ -190,13 +186,13 @@ const ServicesScreen = () => {
                             <View className="gap-y-3">
                                 {currentRequests.map((request) => (
                                     <View key={request.id} className="bg-white rounded-xl shadow-sm p-5">
-                                        <TouchableOpacity 
+                                        <TouchableOpacity
                                             className="flex-row items-start justify-between mb-3"
                                             onPress={() => router.push(`/(connect)/service-detail/${request.id}`)}
                                         >
                                             <View className="flex-1">
                                                 <Text className="text-lg text-gray-900 mb-1" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
-                                                    {request.type.charAt(0).toUpperCase() + request.type.slice(1).toLowerCase()}
+                                                    {request?.type?.charAt(0).toUpperCase() + request.type?.slice(1).toLowerCase()}
                                                 </Text>
                                                 <Text className="text-sm text-gray-600" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
                                                     Requested on {new Date(request.createdAt).toLocaleDateString()}
@@ -208,7 +204,7 @@ const ServicesScreen = () => {
                                                 </Text>
                                             </View>
                                         </TouchableOpacity>
-                                        
+
                                         {request.scheduledDate && (
                                             <View className="bg-blue-50 rounded-lg p-3">
                                                 <Text className="text-sm text-blue-900 mb-1" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
@@ -238,7 +234,7 @@ const ServicesScreen = () => {
                         <View className="gap-y-3">
                             {serviceHistory.map((service) => (
                                 <View key={service.id} className="bg-white rounded-xl shadow-sm p-5">
-                                    <TouchableOpacity 
+                                    <TouchableOpacity
                                         className="flex-row items-start gap-4"
                                         onPress={() => router.push(`/(connect)/service-detail/${service.id}`)}
                                     >
@@ -248,7 +244,7 @@ const ServicesScreen = () => {
                                         <View className="flex-1">
                                             <View className="flex-row items-center justify-between mb-2">
                                                 <Text className="text-base text-gray-900" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
-                                                    {service.type.charAt(0).toUpperCase() + service.type.slice(1).toLowerCase()}
+                                                    {service.type.charAt(0).toUpperCase() + service?.type?.slice(1).toLowerCase()}
                                                 </Text>
                                                 <View className={`px-3 py-1 rounded-full ${getStatusColor(service.status)}`}>
                                                     <Text className="text-xs capitalize" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
@@ -266,7 +262,7 @@ const ServicesScreen = () => {
                                     </TouchableOpacity>
                                 </View>
                             ))}
-                            
+
                             {serviceHistory.length === 0 && (
                                 <View className="bg-white rounded-xl shadow-sm p-8 items-center">
                                     <Text className="text-gray-500 text-center" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>

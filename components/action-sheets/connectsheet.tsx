@@ -1,23 +1,22 @@
-import React, { useState } from 'react';
-import ActionSheet, { SheetManager } from 'react-native-actions-sheet';
-import {
-    View,
-    Text,
-    TouchableOpacity,
-    ActivityIndicator,
-    Alert,
-    Keyboard,
-} from 'react-native';
-import {
-    X,
-    ArrowRight,
-} from 'lucide-react-native';
-import { DynamicInput } from '../DynamicInput';
-import { router } from 'expo-router';
 import { apiService } from '@/api/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
-import { useEffect } from 'react';
+import { router } from 'expo-router';
+import {
+    ArrowRight,
+    X,
+} from 'lucide-react-native';
+import React, { useEffect, useState } from 'react';
+import {
+    ActivityIndicator,
+    Alert,
+    Keyboard,
+    Text,
+    TouchableOpacity,
+    View,
+} from 'react-native';
+import ActionSheet, { SheetManager } from 'react-native-actions-sheet';
+import { DynamicInput } from '../DynamicInput';
 
 
 interface LoginActionSheetProps {
@@ -114,7 +113,7 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
                 connectId.trim(),
             
             );
-            console.log('subscriptionResult ',subscriptionResult)
+            console.log('subscriptionResult ',JSON.stringify(subscriptionResult))
 
             if (!subscriptionResult.isValid) {
                 // Handle invalid subscription

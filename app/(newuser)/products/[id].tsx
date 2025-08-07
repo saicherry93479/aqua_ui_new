@@ -162,11 +162,11 @@ const AquaHomeProductPage = () => {
                 franchises: franchises,
 
                 onSubmit: async (formData: any) => {
-              
+
                     try {
                         const data = {
                             productId: product?.id,
-                            orderType: 'RENTAL',
+                            orderType: formData.type,
                             name: formData.name,
                             phoneNumber: formData.mobile,
                             franchiseId: formData.city,
@@ -175,7 +175,7 @@ const AquaHomeProductPage = () => {
                             installationLongitude: formData.coordinates.longitude,
 
                         }
-              
+
                         // Submit installation request
                         const response = await apiService.post('/installation-requests', data);
 
