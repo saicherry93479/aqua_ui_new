@@ -70,9 +70,9 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
         try {
             const data = {
                 connectId,
-                customerPhone:user?.phone,
+                customerPhone: user?.phone,
             };
-    
+
             const response = await apiService.post('/subscriptions/check', data);
             return response.data;
         } catch (error) {
@@ -108,12 +108,12 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
 
             // Step 2: Check subscription
             setLoadingMessage('Verifying subscription...');
-            
+
             const subscriptionResult = await checkSubscription(
                 connectId.trim(),
-            
+
             );
-            console.log('subscriptionResult ',JSON.stringify(subscriptionResult))
+            console.log('subscriptionResult ', JSON.stringify(subscriptionResult))
 
             if (!subscriptionResult.isValid) {
                 // Handle invalid subscription
@@ -124,8 +124,9 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
                         {
                             text: 'Contact Support',
                             onPress: () => {
+                                handleClose();
                                 // Add your support contact logic here
-                                console.log('Contact support pressed');
+                                router.push('/(newuser)/help-support')
                             }
                         },
                         {
@@ -145,28 +146,28 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
                 payload.onConnect(connectId.trim(), subscriptionResult.subscription);
             }
 
-            const subscriptionInfo = subscriptionResult.subscription?.planName 
+            const subscriptionInfo = subscriptionResult.subscription?.planName
                 ? `\nSubscription: ${subscriptionResult.subscription.planName}`
                 : '';
 
             Alert.alert(
                 'Connected Successfully',
                 `Connected to internal account: ${connectId}${subscriptionInfo}`,
-                [{ 
-                    text: 'OK', 
+                [{
+                    text: 'OK',
                     onPress: () => {
                         handleClose();
                         router.replace('/(connect)/(tabs)');
-                    } 
+                    }
                 }]
             );
 
         } catch (error) {
             console.error('Connection/Subscription error:', error);
-            
+
             let errorMessage = 'Failed to connect. Please try again.';
-            
-           
+
+
 
             Alert.alert(
                 'Connection Failed',
@@ -183,7 +184,7 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
         try {
             setIsLoading(true);
             setLoadingMessage('Resuming session...');
-            
+
             // Refresh the existing session data
             const response = await apiService.post('/subscriptions/check', {
                 connectId: existingSession.connectId,
@@ -192,16 +193,16 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
 
             if (response.success && response.data.isValid) {
                 await createSession(existingSession.connectId, response.data.subscription);
-                
+
                 Alert.alert(
                     'Session Resumed',
                     `Welcome back! Continuing with ${existingSession.connectId}`,
-                    [{ 
-                        text: 'OK', 
+                    [{
+                        text: 'OK',
                         onPress: () => {
                             handleClose();
                             router.replace('/(connect)/(tabs)');
-                        } 
+                        }
                     }]
                 );
             } else {
@@ -297,7 +298,7 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
 
                             <View className="gap-3">
                                 <TouchableOpacity
-                                    className="py-4 rounded-xl bg-[#4548b9]"
+                                    className="py-4 rounded-xl bg-[#254292]"
                                     onPress={handleContinueExistingSession}
                                     disabled={isLoading}
                                 >
@@ -345,8 +346,8 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
                         /* Connect Button */
                         <TouchableOpacity
                             className={`flex-row items-center justify-center py-3 rounded-xl ${isConnectDisabled
-                                    ? 'bg-gray-300'
-                                    : 'bg-[#4548b9]'
+                                ? 'bg-gray-300'
+                                : 'bg-[#254292]'
                                 }`}
                             onPress={handleConnect}
                             disabled={isConnectDisabled}
@@ -381,7 +382,7 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
                     )}
 
                     {/* Footer */}
-                    <View className="mt-6">
+                    <TouchableOpacity className="mt-6" onPress={() => router.push('/(newuser)/help-support')}>
                         <Text
                             className="text-center text-sm text-gray-500"
                             style={{ fontFamily: 'PlusJakartaSans-Regular' }}
@@ -394,7 +395,7 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
                                 Contact Support
                             </Text>
                         </Text>
-                    </View>
+                    </TouchableOpacity>
                 </View>
             </View>
         </ActionSheet>

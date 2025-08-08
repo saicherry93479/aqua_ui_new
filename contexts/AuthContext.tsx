@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
-import { Platform } from 'react-native';
+import { Alert, Platform } from 'react-native';
 
 import {
   getAuth,
@@ -145,30 +145,199 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const sendOTP = async (phoneNumber: string, customerType: UserRole): Promise<any> => {
+  const sendOTP = async (phoneNumber: string, customerType: UserRole = UserRole.CUSTOMER): Promise<any> => {
     try {
       console.log('=== Starting OTP Process ===');
       console.log('Phone number:', phoneNumber);
       console.log('Customer type:', customerType);
       console.log('Platform:', Platform.OS);
 
+      // Validate phone number format
+      if (!phoneNumber || phoneNumber.replace(/\D/g, '').length !== 10) {
+        Alert.alert(
+          'Invalid Phone Number',
+          'Please enter a valid 10-digit phone number'
+        );
+        return null;
+      }
+
       const formattedPhone = '+91' + phoneNumber.replace(/\D/g, '');
       console.log('Formatted phone:', formattedPhone);
 
+      // For web platform in Expo, you might need reCAPTCHA
+ 
+   
 
+      const confirmation = await signInWithPhoneNumber(
+        getAuth(),
+        formattedPhone,
+  
+      );
 
-
-      const confirmation = await signInWithPhoneNumber(getAuth(), formattedPhone);
       console.log('=== OTP Sent Successfully ===');
       setConfirmation(confirmation);
       return confirmation;
 
-    } catch (error) {
+    } catch (error: any) {
       console.log('=== OTP Error ===');
       console.log('Error details:', error);
+
+      const errorCode = error?.code;
+      const errorMessage = error?.message;
+
+      let userFriendlyTitle = 'Error';
+      let userFriendlyMessage = 'Unable to send OTP. Please try again.';
+
+      switch (errorCode) {
+        case 'auth/too-many-requests':
+          userFriendlyTitle = 'Too Many Attempts';
+          userFriendlyMessage = 'You have made too many OTP requests. Please wait 15-30 minutes before trying again.';
+          break;
+
+        case 'auth/quota-exceeded':
+          userFriendlyTitle = 'Service Temporarily Unavailable';
+          userFriendlyMessage = 'Daily SMS limit reached. Please try again tomorrow or contact support.';
+          break;
+
+        case 'auth/invalid-phone-number':
+          userFriendlyTitle = 'Invalid Phone Number';
+          userFriendlyMessage = 'Please enter a valid Indian phone number (10 digits).';
+          break;
+
+        case 'auth/missing-phone-number':
+          userFriendlyTitle = 'Phone Number Required';
+          userFriendlyMessage = 'Please enter your phone number to continue.';
+          break;
+
+        case 'auth/captcha-check-failed':
+          userFriendlyTitle = 'Verification Failed';
+          userFriendlyMessage = 'Security verification failed. Please try again.';
+          break;
+
+        case 'auth/web-storage-unsupported':
+          userFriendlyTitle = 'Browser Not Supported';
+          userFriendlyMessage = 'Please use a supported browser or try the mobile app.';
+          break;
+
+        case 'auth/network-request-failed':
+          userFriendlyTitle = 'Network Error';
+          userFriendlyMessage = 'Please check your internet connection and try again.';
+          break;
+
+        case 'auth/app-deleted':
+        case 'auth/app-not-authorized':
+        case 'auth/invalid-api-key':
+        case 'auth/invalid-app-credential':
+          userFriendlyTitle = 'App Error';
+          userFriendlyMessage = 'There\'s an issue with the app. Please update the app or contact support.';
+          break;
+
+        case 'auth/operation-not-allowed':
+          userFriendlyTitle = 'Feature Unavailable';
+          userFriendlyMessage = 'Phone authentication is temporarily unavailable. Please contact support.';
+          break;
+
+        case 'auth/user-disabled':
+          userFriendlyTitle = 'Account Suspended';
+          userFriendlyMessage = 'Your account has been suspended. Please contact support for assistance.';
+          break;
+
+        case 'auth/invalid-user-token':
+        case 'auth/user-token-expired':
+        case 'auth/requires-recent-login':
+          userFriendlyTitle = 'Session Expired';
+          userFriendlyMessage = 'Please close and reopen the app, then try again.';
+          break;
+
+        case 'auth/timeout':
+          userFriendlyTitle = 'Request Timeout';
+          userFriendlyMessage = 'The request took too long. Please check your connection and try again.';
+          break;
+
+        // Expo/React Native specific errors
+        case 'auth/missing-app-credential':
+          userFriendlyTitle = 'App Configuration Error';
+          userFriendlyMessage = 'App is not properly configured. Please contact support.';
+          break;
+
+        case 'auth/invalid-app-id':
+          userFriendlyTitle = 'App ID Error';
+          userFriendlyMessage = 'Invalid app configuration. Please update the app.';
+          break;
+
+        // Handle reCAPTCHA specific errors (mainly for web)
+        case 'auth/recaptcha-not-enabled':
+          userFriendlyTitle = 'Security Feature Required';
+          userFriendlyMessage = 'Security verification is required but not enabled. Please contact support.';
+          break;
+
+        case 'auth/missing-recaptcha-token':
+          userFriendlyTitle = 'Security Verification Failed';
+          userFriendlyMessage = 'Security verification incomplete. Please try again.';
+          break;
+
+        default:
+          // Handle unknown errors with more context
+          if (errorMessage?.toLowerCase().includes('network')) {
+            userFriendlyTitle = 'Connection Problem';
+            userFriendlyMessage = 'Unable to connect to our servers. Please check your internet connection.';
+          } else if (errorMessage?.toLowerCase().includes('timeout')) {
+            userFriendlyTitle = 'Slow Connection';
+            userFriendlyMessage = 'Your connection is slow. Please try again with a better network.';
+          } else if (errorMessage?.toLowerCase().includes('firebase')) {
+            userFriendlyTitle = 'Service Error';
+            userFriendlyMessage = 'Our authentication service is having issues. Please try again in a few minutes.';
+          } else {
+            userFriendlyTitle = 'Unexpected Error';
+            userFriendlyMessage = 'Something unexpected happened. Please try again or contact support.';
+          }
+
+          // Log unknown errors for debugging in development
+          if (__DEV__) {
+            console.warn('Unknown Firebase Auth Error:', {
+              code: errorCode,
+              message: errorMessage,
+              platform: Platform.OS,
+              fullError: error
+            });
+          }
+          break;
+      }
+
+      // Show user-friendly alert with platform-specific options
+      const alertButtons = [
+        {
+          text: 'OK',
+          style: 'default' as const,
+        }
+      ];
+
+      // Add retry option for recoverable errors
+      if ([
+        'auth/network-request-failed',
+        'auth/timeout',
+        'auth/internal-error',
+        'auth/captcha-check-failed'
+      ].includes(errorCode)) {
+        alertButtons.push({
+          text: 'Retry',
+          style: 'default' as const,
+          onPress: () => {
+            // Add small delay before retry
+            setTimeout(() => {
+              sendOTP(phoneNumber, customerType);
+            }, 1000);
+          },
+        });
+      }
+
+      Alert.alert(userFriendlyTitle, userFriendlyMessage, alertButtons);
+
       throw error;
     }
   };
+
+
 
   const verifyOTP = async (otp: string, role: string): Promise<{
     nextScreen: string;
@@ -256,6 +425,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         originalUser: null,
         currentViewRole: null,
       });
+      router.push('/(auth)')
     } catch (error) {
       console.log('Logout error:', error);
     } finally {

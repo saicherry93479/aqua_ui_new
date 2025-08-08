@@ -248,6 +248,8 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
         },
       });
 
+      console.log('response is ',JSON.stringify(response))
+
       if (response.success && response.data) {
         setServiceRequests(response.data.serviceRequests || []);
       }

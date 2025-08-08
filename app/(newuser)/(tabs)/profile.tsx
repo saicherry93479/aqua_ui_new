@@ -104,12 +104,7 @@ const ProfileScreen = () => {
     };
 
     const menuItems = [
-        {
-            icon: SettingsIcon,
-            title: 'Account Settings',
-            subtitle: 'Manage your account preferences',
-            onPress: () => console.log('Account Settings')
-        },
+      
         {
             icon: HelpCircleIcon,
             title: 'Help & Support', 

@@ -11,6 +11,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Image
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -48,7 +49,10 @@ const AquaHomeLogin = () => {
     setIsLoading(true);
     try {
       await sendOTP(phoneNumber);
-      router.push('/(auth)/otp');
+      router.push({
+        pathname: '/(auth)/otp',
+        params: { phoneNumber: phoneNumber },
+      });
     } catch (error) {
       console.error('Failed to send OTP:', error);
       // Optionally show toast or error UI
@@ -66,13 +70,17 @@ const AquaHomeLogin = () => {
         className="flex-1"
       >
         {/* Header Section */}
-        <View className={`bg-[#4548b9] ${isKeyboardVisible ? 'flex-[0.5]' : 'flex-[0.7]'} justify-center items-center`}>
+        <View className={`bg-[#254292] ${isKeyboardVisible ? 'flex-[0.5]' : 'flex-[0.7]'} justify-center items-center`}>
           <View className="items-center">
-            <View className="w-16 h-16 bg-white rounded-full mb-4 justify-center items-center">
-              <Text className="text-[#4548b9] text-2xl" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>dp</Text>
+            <View className="w-20 h-20 bg-white rounded-full p-2 mb-4 justify-center items-center">
+              <Image
+                source={require('../../assets/images/logo.png')}
+                style={{ width: '100%', height: '100%', borderRadius: 999 }}
+                resizeMode="contain"
+              />
             </View>
-            <Text className="text-white text-xl" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
-              AquaHome
+            <Text className="text-white text-xl" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
+              AQUA HOME
             </Text>
           </View>
         </View>
@@ -112,7 +120,7 @@ const AquaHomeLogin = () => {
 
           {/* OTP Button */}
           <TouchableOpacity
-            className={`py-4 rounded-lg mt-4 ${isValidPhoneNumber && !isLoading ? 'bg-[#4548b9]' : 'bg-gray-400'}`}
+            className={`py-4 rounded-lg mt-4 ${isValidPhoneNumber && !isLoading ? 'bg-[#254292]' : 'bg-gray-400'}`}
             disabled={!isValidPhoneNumber || isLoading}
             onPress={handleRequestOTP}
           >

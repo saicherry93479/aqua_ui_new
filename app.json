@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "ui_testing",
-    "slug": "ui_testing",
+    "name": "AquaHome",
+    "slug": "AquaHome_userapp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -16,7 +16,7 @@
       "versionCode": 5,
       "googleServicesFile": "./service-account.json",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/splash-icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
@@ -29,7 +29,7 @@
     },
     "web": {
       "bundler": "metro",
-      "output": "static",
+    "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
@@ -48,6 +48,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "2927cb66-1e21-47f8-9b30-96dcf0312e2b"
+      }
+    },
+    "owner": "cherry93479"
   }
 }

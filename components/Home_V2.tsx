@@ -1,16 +1,16 @@
 import { LinearGradient } from 'expo-linear-gradient'
 import { router, useNavigation } from 'expo-router'
 import React, { useLayoutEffect, useState } from 'react'
-import { Dimensions, Image, Pressable, Text, View, Animated } from 'react-native'
-import { GestureDetector, Gesture, GestureHandlerRootView } from 'react-native-gesture-handler'
+import { Animated, Dimensions, Image, Pressable, Text, View } from 'react-native'
+import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler'
 import ReanimatedAnimated, {
+    Extrapolate,
+    interpolate,
     runOnJS,
     useAnimatedStyle,
     useSharedValue,
     withSpring,
     withTiming,
-    interpolate,
-    Extrapolate,
 } from 'react-native-reanimated'
 import Svg, { Path } from 'react-native-svg'
 
@@ -676,7 +676,7 @@ const Index = () => {
                         </Text>
                         <Pressable
                             onPress={() => setCurrentIndex(0)}
-                            className="bg-[#4548B9] px-8 py-4 rounded-2xl"
+                            className="bg-[#254292] px-8 py-4 rounded-2xl"
                         >
                             <Text
                                 className="text-white text-lg"

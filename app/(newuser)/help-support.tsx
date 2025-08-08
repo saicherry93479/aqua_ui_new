@@ -1,6 +1,6 @@
-import React, { useLayoutEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Linking, Alert } from 'react-native';
 import { useNavigation } from 'expo-router';
+import React, { useLayoutEffect } from 'react';
+import { Alert, Linking, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 const PhoneIcon = ({ size = 24, color = "currentColor" }) => (
@@ -86,7 +86,7 @@ export default function HelpSupportScreen() {
   const ContactCard = ({ person, type }) => (
     <View className="bg-white rounded-2xl shadow-sm p-6 mb-6">
       <View className="flex-row items-center mb-4">
-        <View className="w-12 h-12 bg-[#4548b9] rounded-full items-center justify-center mr-4">
+        <View className="w-12 h-12 bg-[#254292] rounded-full items-center justify-center mr-4">
           <UserIcon size={24} color="white" />
         </View>
         <View className="flex-1">
@@ -170,7 +170,7 @@ export default function HelpSupportScreen() {
           </View>
 
           {/* Area Manager */}
-          <View className="mb-2">
+          <View className="mb-2 hidden">
             <Text className="text-lg text-gray-900 mb-4" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
               Your Area Manager
             </Text>
@@ -178,7 +178,7 @@ export default function HelpSupportScreen() {
           </View>
 
           {/* Company Owner */}
-          <View className="mb-2">
+          <View className="mb-2 hidden">
             <Text className="text-lg text-gray-900 mb-4" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
               Company Leadership
             </Text>
@@ -195,7 +195,7 @@ export default function HelpSupportScreen() {
             </Text>
             <TouchableOpacity
               className="bg-red-600 py-3 rounded-xl"
-              onPress={() => handleCall('+91 1800-123-4567')}
+              onPress={() => handleCall('+91 9494739090')}
             >
               <Text className="text-white text-center" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
                 Call Emergency Helpline
@@ -211,28 +211,14 @@ export default function HelpSupportScreen() {
             <View className="gap-2">
               <View className="flex-row justify-between">
                 <Text className="text-gray-600" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
-                  Monday - Friday
+                  Monday - Saturday
                 </Text>
                 <Text className="text-gray-900" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
                   9:00 AM - 6:00 PM
                 </Text>
               </View>
-              <View className="flex-row justify-between">
-                <Text className="text-gray-600" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
-                  Saturday
-                </Text>
-                <Text className="text-gray-900" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
-                  9:00 AM - 2:00 PM
-                </Text>
-              </View>
-              <View className="flex-row justify-between">
-                <Text className="text-gray-600" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
-                  Sunday
-                </Text>
-                <Text className="text-gray-900" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
-                  Closed
-                </Text>
-              </View>
+
+
             </View>
           </View>
         </View>

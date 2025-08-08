@@ -1,19 +1,19 @@
+import { apiService } from '@/api/api';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
+    ActivityIndicator,
     Dimensions,
     Image,
     ScrollView,
     Text,
     TouchableOpacity,
-    View,
-    ActivityIndicator
+    View
 } from 'react-native';
 import { SheetManager } from 'react-native-actions-sheet';
 import Svg, { Path } from 'react-native-svg';
 import { SHEET_IDS } from '../../sheets';
-import { apiService } from '@/api/api';
 
 const { width } = Dimensions.get('window');
 
@@ -63,30 +63,20 @@ const AquaHomeProductPage = () => {
     // Static reviews data
     const reviews = [
         {
-            text: "Good service! They have the option for relocation as well. Have been using the drink prime service for close to 3 years now.",
-            author: "Richa Sharma",
+            text: "Downloaded the app last week, and within 2 days the purifier was installed at my home. The signup process was simple, and I loved that I could choose my service zone right from the app.",
+            author: "Ram",
             rating: 5
         },
         {
-            text: "Overall experience was good in terms of delivery to installation, it was delivered the very next when I made the payment and installed on the same day.",
-            author: "Shubham Singh",
+            text: "Tried the app as it’s a new service in my area. Installation was smooth and water quality is good so far. Waiting to see how the maintenance service works over time.",
+            author: "Jai Krishna",
             rating: 5
         },
         {
-            text: "Excellent purifier, purifies water well, drink prime has improved my family health and wellness, able to connect wifi with the device.",
-            author: "Sampath Meda",
+            text: "The app is very simple — just a few taps to book a purifier. The interface feels fresh and modern, and the confirmation call was quick.",
+            author: "Saydu Shaik",
             rating: 5
         },
-        {
-            text: "Good Product and Installation was really fast and smooth. Quality Test was done In front of us very transparent application and services.",
-            author: "Sridhar Kulkarni",
-            rating: 5
-        },
-        {
-            text: "I never thought it would be so easy to get a good purifier on rent. Their service is so prompt, I got my purifier delivered and installed within 12 hours. Also their app is very user friendly",
-            author: "Pratik Dasgupta",
-            rating: 5
-        }
     ];
 
     // Fetch product data
@@ -131,7 +121,7 @@ const AquaHomeProductPage = () => {
                 <Text className='text-lg' style={{
                     fontFamily: 'PlusJakartaSans-Bold'
                 }}>
-                    {product?.name || 'RO+ Water'}
+                    Product Details
                 </Text>
             ),
             headerTitleAlign: 'center',
@@ -206,7 +196,7 @@ const AquaHomeProductPage = () => {
 
     const RightArrowIcon = () => (
         <Svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <Path d="M5.66675 3.33333L10.3334 8L5.66675 12.6667" stroke="#4548B9" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round" />
+            <Path d="M5.66675 3.33333L10.3334 8L5.66675 12.6667" stroke="#254292" strokeWidth="1.33333" strokeLinecap="round" strokeLinejoin="round" />
         </Svg>
     );
 
@@ -219,7 +209,7 @@ const AquaHomeProductPage = () => {
     if (loading) {
         return (
             <View className="flex-1 justify-center items-center bg-white">
-                <ActivityIndicator size="large" color="#4548b9" />
+                <ActivityIndicator size="large" color="#254292" />
                 <Text
                     className="mt-4 text-gray-600"
                     style={{ fontFamily: 'PlusJakartaSans-Medium' }}
@@ -240,7 +230,7 @@ const AquaHomeProductPage = () => {
                     {error || 'Product not found'}
                 </Text>
                 <TouchableOpacity
-                    className="bg-[#4548b9] px-6 py-3 rounded-2xl"
+                    className="bg-[#254292] px-6 py-3 rounded-2xl"
                     onPress={() => {
                         setError(null);
                         setLoading(true);
@@ -267,8 +257,8 @@ const AquaHomeProductPage = () => {
                     <View className="overflow-hidden">
                         <Image
                             source={{ uri: product.images[selectedImage] }}
-                            className="w-full h-[350]"
-                            resizeMode="cover"
+                            className="w-full h-[300]"
+                            resizeMode="contain"
                         />
                     </View>
 
@@ -307,44 +297,49 @@ const AquaHomeProductPage = () => {
                     <View className="border rounded-t-2xl text-title-active w-full">
                         {/* Header with Gradient */}
                         <View className="px-2 py-4 rounded-t-2xl bg-gradient-to-r from-purple-100 to-blue-100">
-                            <Text
+                            <View className='flex flex-row justify-between'>  <Text
                                 className="text-[20px] text-black w-fit bg-mineral-gradient"
                                 style={{ fontFamily: 'PlusJakartaSans-ExtraBold' }}
                             >
                                 {product.name}
                             </Text>
+                                <View className="flex flex-row items-end gap-1">
+                                    <Text
+                                        className=" leading-tight "
+                                        style={{ fontFamily: 'PlusJakartaSans-ExtraBold', fontSize: 24, }}
+                                    >
+                                        ₹{product.buyPrice}
+                                    </Text>
+                                    <Text
+                                        className=" text-gray-600"
+                                        style={{ fontFamily: 'PlusJakartaSans-Regular', fontSize: 16 }}
+                                    >
+                                        /Buy
+                                    </Text>
+
+                                </View></View>
+
                             <Text
-                                className="text-[15px] leading-[150%] text-gray-800 py-1 pb-1.5"
+                                numberOfLines={4}
+                                ellipsizeMode="tail"
+                                className="text-sm leading-[25.20px] text-gray-800 mt-4 py-1 pb-1.5"
                                 style={{ fontFamily: 'PlusJakartaSans-Medium' }}
                             >
                                 {product.description}
+
                             </Text>
+
 
                             <View className="w-full h-px bg-gray-200 my-4" />
 
                             <View className="flex flex-row justify-between">
-                                <View>
-                                    <Text
+
+                                {/* <Text
                                         className="text-[13px] text-gray-700 leading-[120%] mb-1"
                                         style={{ fontFamily: 'PlusJakartaSans-Bold' }}
                                     >
                                         7-days FREE
-                                    </Text>
-                                    <View className="flex flex-row items-end gap-1">
-                                        <Text
-                                            className="text-[32px] leading-tight text-green-600"
-                                            style={{ fontFamily: 'PlusJakartaSans-ExtraBold' }}
-                                        >
-                                            ₹{product.rentPrice}
-                                        </Text>
-                                        <Text
-                                            className="text-xl text-gray-600"
-                                            style={{ fontFamily: 'PlusJakartaSans-Regular' }}
-                                        >
-                                            /month
-                                        </Text>
-                                    </View>
-                                </View>
+                                    </Text> */}
 
                                 <View className="flex flex-col justify-center items-center px-6 rounded-3xl bg-lime-100 shadow-sm">
                                     <View className="flex flex-row gap-1 items-center">
@@ -357,12 +352,29 @@ const AquaHomeProductPage = () => {
                                         </Text>
                                     </View>
                                 </View>
+
+
+                                <View className="flex flex-row items-end gap-1">
+                                    <Text
+
+                                        className=" leading-tight "
+                                        style={{ fontFamily: 'PlusJakartaSans-ExtraBold', fontSize: 24, }}
+                                    >
+                                        ₹{product.rentPrice}
+                                    </Text>
+                                    <Text
+                                        className=" text-gray-600"
+                                        style={{ fontFamily: 'PlusJakartaSans-Regular', fontSize: 16 }}
+                                    >
+                                        /Month
+                                    </Text>
+                                </View>
                             </View>
                         </View>
                     </View>
 
                     <TouchableOpacity
-                        className="w-full bg-[#4548b9] text-sm rounded-b-[24px] py-3.5"
+                        className="w-full bg-[#254292] text-sm rounded-b-[24px] py-3.5"
                         onPress={handleInstallationRequest}
                     >
                         <Text
@@ -422,7 +434,7 @@ const AquaHomeProductPage = () => {
                                     {reviews.map((_, index) => (
                                         <TouchableOpacity
                                             key={index}
-                                            className={`rounded-full w-2.5 h-2.5 border ${currentReview === index ? 'bg-[#4548b9]' : 'bg-gray-200'}`}
+                                            className={`rounded-full w-2.5 h-2.5 border ${currentReview === index ? 'bg-[#254292]' : 'bg-gray-200'}`}
                                             onPress={() => setCurrentReview(index)}
                                         />
                                     ))}
@@ -430,15 +442,15 @@ const AquaHomeProductPage = () => {
                             </View>
                         </View>
 
-                        <View className="pt-2 pb-5 md:pb-3 border-t mt-2 border-gray-300 flex flex-row gap-1 md:justify-center items-center">
+                        {/* <View className="pt-2 hidden pb-5 md:pb-3 border-t mt-2 border-gray-300 flex flex-row gap-1 md:justify-center items-center">
                             <Text
-                                className="text-[#4548b9] text-[12px] md:text-center"
+                                className="text-[#254292] text-[12px] md:text-center"
                                 style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}
                             >
                                 Check review in playstore
                             </Text>
                             <RightArrowIcon />
-                        </View>
+                        </View> */}
                     </LinearGradient>
                 </View>
             </View>

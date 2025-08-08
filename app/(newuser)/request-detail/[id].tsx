@@ -1,13 +1,13 @@
 import { apiService } from '@/api/api';
-import { useLocalSearchParams, useNavigation } from 'expo-router';
-import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Linking, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import Svg, { Circle, Path } from 'react-native-svg';
 import * as Clipboard from 'expo-clipboard';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import {
     Copy,
     CopyCheck
 } from 'lucide-react-native';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
+import { ActivityIndicator, Alert, Linking, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import Svg, { Circle, Path } from 'react-native-svg';
 
 // Custom SVG Components
 const CheckCircleIcon = ({ size = 20, color = "currentColor" }) => (
@@ -248,7 +248,7 @@ export default function RequestDetailScreen() {
     if (loading) {
         return (
             <View className="flex-1 justify-center items-center bg-gray-50">
-                <ActivityIndicator size="large" color="#4548b9" />
+                <ActivityIndicator size="large" color="#254292" />
                 <Text
                     className="mt-4 text-gray-600"
                     style={{ fontFamily: 'PlusJakartaSans-Medium' }}
@@ -270,7 +270,7 @@ export default function RequestDetailScreen() {
                     {error || 'Request not found'}
                 </Text>
                 <TouchableOpacity
-                    className="bg-[#4548b9] px-6 py-3 rounded-2xl"
+                    className="bg-[#254292] px-6 py-3 rounded-2xl"
                     onPress={fetchRequestDetails}
                 >
                     <Text
@@ -389,7 +389,7 @@ export default function RequestDetailScreen() {
 
                             <View className="flex-row justify-between">
                                 <Text className="text-gray-600" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
-                                    Monthly Rent
+                                    {request.orderType === 'RENTAL' ? ' Monthly Rent' : 'Purchase Amount'}
                                 </Text>
                                 <Text className="text-gray-900" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
                                     ₹{request.product.rentPrice}
@@ -401,7 +401,7 @@ export default function RequestDetailScreen() {
                                     Security Deposit
                                 </Text>
                                 <Text className="text-gray-900" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
-                                    ₹{request.product.deposit}
+                                    ₹0
                                 </Text>
                             </View>
                         </View>
@@ -471,6 +471,17 @@ export default function RequestDetailScreen() {
                         </View>
                     )}
 
+                    {
+                        request.completedDate && <View className="bg-white rounded-xl shadow-sm p-6">
+                             <Text className="text-lg text-gray-900 mb-4" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
+                                Completed On
+                            </Text>
+                            <Text className="text-sm text-gray-600" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
+                                        Date: {new Date(request.completedDate).toLocaleString()}
+                                    </Text>
+                        </View>
+                    }
+
                     {/* Rejection Reason */}
                     {request.rejectionReason && (
                         <View className="bg-red-50 rounded-xl p-6 border border-red-100">
@@ -490,12 +501,12 @@ export default function RequestDetailScreen() {
                         </Text>
 
                         <TouchableOpacity
-                            className="flex-row items-center justify-center gap-3 bg-[#4548b9] py-4 rounded-xl"
-                            onPress={() => handleCall('+919986938426')}
+                            className="flex-row items-center justify-center gap-3 bg-[#254292] py-4 rounded-xl"
+                            onPress={() => router.push('/(newuser)/help-support')}
                         >
                             <PhoneIcon size={20} color="white" />
                             <Text className="text-white text-base" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
-                                Call Support: +91-9986938426
+                                Call Support
                             </Text>
                         </TouchableOpacity>
                     </View>

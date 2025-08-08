@@ -15,14 +15,16 @@ import {
   PlusJakartaSans_800ExtraBold,
 } from '@expo-google-fonts/plus-jakarta-sans';
 import { SheetProvider } from 'react-native-actions-sheet';
-import { AuthProvider } from '@/contexts/AuthContext';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { SubscriptionProvider } from '@/contexts/SubscriptionContext'
 import { NotificationPermissionModal, useNotificationPermissionModal } from '@/components/NotificationModal';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 export function RootLayoutNav() {
   useFrameworkReady()
   const colorScheme = useColorScheme();
+  const { isLoading, isAuthenticated } = useAuth();
   const [loaded, error] = useFonts({
     'PlusJakartaSans-Regular': PlusJakartaSans_400Regular,
     'PlusJakartaSans-Medium': PlusJakartaSans_500Medium,
@@ -43,28 +45,30 @@ export function RootLayoutNav() {
   return (
 
     <GestureHandlerRootView style={{ flex: 1 }}>
+     <SafeAreaProvider style={{ flex: 1, paddingBottom: 0,backgroundColor:'white' }}>
 
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-
-
-        <SheetProvider>
-          <Stack initialRouteName='(connect)'>
-            <Stack.Screen name='(connect)' options={{ headerShown: false }}></Stack.Screen>
-            <Stack.Screen name="(newuser)" options={{ headerShown: false }} />
-            <Stack.Screen name='(auth)' options={{ headerShown: false }}></Stack.Screen>
-
-            <Stack.Screen name='intialscreen' options={{ headerShown: false }} ></Stack.Screen>
-            <Stack.Screen name="+not-found" />
-          </Stack>
-          <StatusBar style="auto" />
-          <NotificationPermissionModal
-            visible={shouldShow}
-            onClose={hideModal}
-          />
-        </SheetProvider>
+        <ThemeProvider value={colorScheme === 'dark' ? DefaultTheme : DefaultTheme}>
 
 
-      </ThemeProvider>
+          <SheetProvider>
+            <Stack initialRouteName='(connect)'>
+              <Stack.Screen name='(connect)' options={{ headerShown: false }}></Stack.Screen>
+              <Stack.Screen name="(newuser)" options={{ headerShown: false }} />
+              <Stack.Screen name='(auth)' options={{ headerShown: false }}></Stack.Screen>
+
+              <Stack.Screen name='intialscreen' options={{ headerShown: false }} ></Stack.Screen>
+              <Stack.Screen name="+not-found" />
+            </Stack>
+            <StatusBar style="dark" backgroundColor="#ffffff" />
+            <NotificationPermissionModal
+              visible={shouldShow}
+              onClose={hideModal}
+            />
+          </SheetProvider>
+
+
+        </ThemeProvider>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
 
   );

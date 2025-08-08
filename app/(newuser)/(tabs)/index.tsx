@@ -1,15 +1,15 @@
 import { apiService } from '@/api/api';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useNavigation } from 'expo-router';
-import React, { useLayoutEffect, useState, useEffect } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import {
+    ActivityIndicator,
     Dimensions,
     Image,
     Pressable,
     ScrollView,
     Text,
-    View,
-    ActivityIndicator
+    View
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
@@ -99,12 +99,13 @@ const ProductCard = ({ product, onPress }) => {
                             </View>
                         </View>
 
-                        <LinearGradient
-                            colors={['#4548b9', '#8d90f2', '#4548b9']}
+                        <View
+                            // colors={['#254292', '#8d90f2', '#254292']}
                             style={{
                                 paddingHorizontal: 20,
                                 paddingVertical: 12,
                                 borderRadius: 16,
+                                backgroundColor: '#254292'
                             }}
                         >
                             <Text
@@ -114,9 +115,9 @@ const ProductCard = ({ product, onPress }) => {
                                     color: 'white',
                                 }}
                             >
-                                Rent Now
+                                Rent/Buy
                             </Text>
-                        </LinearGradient>
+                        </View>
                     </View>
                 </View>
             </View>
@@ -213,7 +214,7 @@ const Index = () => {
                 justifyContent: 'center',
                 alignItems: 'center'
             }}>
-                <ActivityIndicator size="large" color="#4548b9" />
+                <ActivityIndicator size="large" color="#254292" />
                 <Text style={{
                     marginTop: 16,
                     fontSize: 16,
@@ -293,9 +294,9 @@ const Index = () => {
                             <Pressable
                                 onPress={() => setSelectedCategory(category.id)}
                                 style={{
-                                    height: 60,
+                                    height: 50,
 
-                                    borderRadius: 16,
+                                    borderRadius: 18,
                                     overflow: 'hidden',
                                     borderWidth: selectedCategory === category.id ? 0 : 1.5,
                                     borderColor: selectedCategory === category.id ? 'transparent' : '#4E4B66',
@@ -303,14 +304,15 @@ const Index = () => {
                                 }}
                             >
                                 {selectedCategory === category.id ? (
-                                    <LinearGradient
-                                        colors={['#4548b9', '#8d90f2', '#4548b9']}
-                                        locations={[0, 0.4, 1]}
+                                    <View
+
+
                                         style={{
                                             flex: 1,
                                             alignItems: 'center',
                                             justifyContent: 'center',
-                                            width: '100%'
+                                            width: '100%',
+                                            backgroundColor: '#254292'
                                         }}
                                     >
                                         <Text
@@ -323,7 +325,7 @@ const Index = () => {
                                         >
                                             {category.name}
                                         </Text>
-                                    </LinearGradient>
+                                    </View>
                                 ) : (
                                     <View style={{
                                         flex: 1,
@@ -358,7 +360,7 @@ const Index = () => {
                                         borderTopWidth: 8,
                                         borderLeftColor: 'transparent',
                                         borderRightColor: 'transparent',
-                                        borderTopColor: '#4548b9',
+                                        borderTopColor: '#254292',
                                     }}
                                 />
 

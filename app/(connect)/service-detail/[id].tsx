@@ -1,9 +1,8 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { View, Text, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { useNavigation, useLocalSearchParams } from 'expo-router';
-import { useSubscription } from '@/contexts/SubscriptionContext';
-import Svg, { Path, Circle } from 'react-native-svg';
 import { apiService } from '@/api/api';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
+import { ActivityIndicator, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import Svg, { Circle, Path } from 'react-native-svg';
 
 // Icons (keeping your existing icons)
 const CheckCircleIcon = ({ size = 20, color = "currentColor" }) => (
@@ -157,7 +156,7 @@ export default function ServiceDetailScreen() {
   if (loading) {
     return (
       <View className="flex-1 items-center justify-center bg-gray-50">
-        <ActivityIndicator size="large" color="#4548b9" />
+        <ActivityIndicator size="large" color="#254292" />
         <Text className="text-lg text-gray-600 mt-4" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
           Loading service details...
         </Text>
@@ -173,7 +172,7 @@ export default function ServiceDetailScreen() {
         </Text>
         <TouchableOpacity 
           onPress={fetchServiceRequest}
-          className="bg-[#4548b9] px-6 py-3 rounded-lg"
+          className="bg-[#254292] px-6 py-3 rounded-lg"
         >
           <Text className="text-white text-center" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
             Retry
@@ -336,13 +335,13 @@ export default function ServiceDetailScreen() {
           )}
 
           {/* Payment Information */}
-          {(service.requirePayment || service.installationRequest?.razorpayPaymentLink) && (
+          {/* {(service.requirePayment || service.installationRequest?.razorpayPaymentLink) && (
             <View className="bg-white rounded-xl shadow-sm p-6">
               <Text className="text-lg text-gray-900 mb-3" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
                 Payment Information
               </Text>
               {service.requirePayment ? (
-                <Text className="text-2xl text-[#4548b9]" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
+                <Text className="text-2xl text-[#254292]" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
                   Payment Required
                 </Text>
               ) : (
@@ -356,7 +355,7 @@ export default function ServiceDetailScreen() {
                 </Text>
               )}
             </View>
-          )}
+          )} */}
 
           {/* Subscription Information */}
           {service.subscription && (
@@ -383,13 +382,13 @@ export default function ServiceDetailScreen() {
 
           {/* Action Buttons */}
           <View className="flex-row gap-3">
-            <TouchableOpacity className="flex-1 bg-gray-100 py-4 rounded-xl">
+            <TouchableOpacity className="flex-1 hidden bg-gray-100 py-4 rounded-xl">
               <Text className="text-center text-gray-700" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
                 Download Report
               </Text>
             </TouchableOpacity>
             
-            <TouchableOpacity className="flex-1 bg-[#4548b9] py-4 rounded-xl">
+            <TouchableOpacity onPress={()=>router.push('/(connect)/help-support')} className="flex-1 bg-[#254292] py-4 rounded-xl">
               <Text className="text-center text-white" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
                 Contact Support
               </Text>

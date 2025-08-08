@@ -117,7 +117,7 @@ export const DynamicInput: React.FC<DynamicInputProps> = ({
           inputStyle,
         ]}
         placeholder={placeholder}
-        // placeholderTextColor="#9CA3AF"
+        placeholderTextColor="#000000"
         value={value}
         onChangeText={handleChangeText}
         onFocus={handleFocus}

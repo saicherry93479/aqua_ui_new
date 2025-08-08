@@ -1,3 +1,4 @@
+import { useAuth, UserRole } from '@/contexts/AuthContext';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
@@ -9,17 +10,17 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useAuth, UserRole } from '@/contexts/AuthContext';
 
 const AquaHomeOTP = () => {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  const [timer, setTimer] = useState(37);
+  const [timer, setTimer] = useState(30);
   const [isVerifying, setIsVerifying] = useState(false);
   const navigation = useNavigation();
   const inputRefs = useRef([]);
+  const { sendOTP } = useAuth();
 
   const { verifyOTP } = useAuth();
-  const { phoneNumber = '9515235212' } = useLocalSearchParams();
+  const { phoneNumber } = useLocalSearchParams();
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -94,12 +95,14 @@ const AquaHomeOTP = () => {
 
   const isOTPComplete = otp.every((digit) => digit !== '');
 
-  const handleResendOTP = () => {
+  const handleResendOTP = async () => {
     if (timer === 0) {
-      setTimer(37);
+      setTimer(30);
       setOtp(['', '', '', '', '', '']);
       inputRefs.current[0]?.focus();
       // Add resend logic here
+      await sendOTP(phoneNumber as string,UserRole.CUSTOMER)
+
     }
   };
 
@@ -114,7 +117,7 @@ const AquaHomeOTP = () => {
     const otpValue = otp.join('');
     try {
       setIsVerifying(true);
-       const result = await verifyOTP(otpValue, UserRole.CUSTOMER);
+      const result = await verifyOTP(otpValue, UserRole.CUSTOMER);
       if (result.success) {
         router.replace(result.nextScreen); // '/' or '/OnboardDetails'
       } else {
@@ -149,9 +152,8 @@ const AquaHomeOTP = () => {
             <View key={index} className="mx-1">
               <TextInput
                 ref={(ref) => (inputRefs.current[index] = ref)}
-                className={`w-10 h-12 border-2 ${
-                  digit ? 'border-[#4548b9]' : 'border-gray-300'
-                } rounded-md text-center text-lg text-black`}
+                className={`w-10 h-12 border-2 ${digit ? 'border-[#254292]' : 'border-gray-300'
+                  } rounded-md text-center text-lg text-black`}
                 style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}
                 value={digit}
                 onChangeText={(text) => handleOTPChange(text, index)}
@@ -171,9 +173,8 @@ const AquaHomeOTP = () => {
 
         {/* Continue Button */}
         <TouchableOpacity
-          className={`py-4 rounded-lg mb-8 ${
-            isOTPComplete && !isVerifying ? 'bg-[#4548b9]' : 'bg-gray-400'
-          }`}
+          className={`py-4 rounded-lg mb-8 ${isOTPComplete && !isVerifying ? 'bg-[#254292]' : 'bg-gray-400'
+            }`}
           disabled={!isOTPComplete || isVerifying}
           onPress={handleContinue}
         >
@@ -194,7 +195,7 @@ const AquaHomeOTP = () => {
             </Text>
           ) : (
             <TouchableOpacity onPress={handleResendOTP}>
-              <Text className="text-[#4548b9]" style={{ fontFamily: 'PlusJakartaSans-Medium' }}>
+              <Text className="text-[#254292]" style={{ fontFamily: 'PlusJakartaSans-Medium' }}>
                 Resend code
               </Text>
             </TouchableOpacity>

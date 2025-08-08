@@ -1,10 +1,11 @@
-import React, { useState, useLayoutEffect, useEffect, use } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Modal, TextInput, Alert } from 'react-native';
-import { router, useNavigation } from 'expo-router';
-import { SheetManager } from 'react-native-actions-sheet';
-import { SHEET_IDS } from '../../sheets';
 import { useSubscription } from '@/contexts/SubscriptionContext';
-import Svg, { Path, Circle } from 'react-native-svg';
+import { router, useNavigation } from 'expo-router';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
+import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { SheetManager } from 'react-native-actions-sheet';
+import Svg, { Circle, Path } from 'react-native-svg';
+import { SHEET_IDS } from '../../sheets';
+import { RefreshCw } from 'lucide-react-native';
 
 // Custom SVG Components
 const PlusIcon = ({ size = 24, color = "currentColor" }) => (
@@ -68,6 +69,20 @@ const ServicesScreen = () => {
                     Services
                 </Text>
             ),
+            headerRight: () => (
+                <TouchableOpacity
+                    onPress={handleReload}
+                    style={{
+                        marginRight: 16,
+                        padding: 4,
+                    }}
+                >
+                    <RefreshCw
+                        size={24}
+                        color="#1F2937"
+                    />
+                </TouchableOpacity>
+            ),
             headerTitleAlign: 'center',
             headerBackTitleVisible: false,
             headerShadowVisible: false,
@@ -76,6 +91,13 @@ const ServicesScreen = () => {
             }
         });
     }, [navigation]);
+
+    const handleReload = () => {
+        // Your reload logic here
+        console.log('Reload pressed');
+        refreshServiceRequests()
+    };
+
 
     const serviceTypes = [
         { id: 'filter', name: 'Filter Replacement', icon: FilterIcon },
@@ -92,32 +114,16 @@ const ServicesScreen = () => {
         req.status === 'COMPLETED' || req.status === 'CANCELLED'
     );
 
-    const handleSubmitServiceRequest = async (data: any) => {
-        try {
-            if (!currentSession) {
-                Alert.alert('Error', 'No active session found');
-                return;
-            }
+    const handleSubmitServiceRequest = async () => {
 
-            await createServiceRequest({
-                productId: currentSession.subscription.productId,
-                subscriptionId: currentSession.subscription.id,
-                type: data.serviceType,
-                description: data.description,
-                images: data.photos || [],
-            });
 
-            Alert.alert(
-                'Service Request Submitted',
-                'Your service request has been submitted successfully. Our team will contact you within 24 hours.',
-                [{ text: 'OK' }]
-            );
-            setRefresh(refresh => !refresh)
-        } catch (error) {
-            console.error('Error submitting service request:', error);
-            Alert.alert('Error', 'Failed to submit service request. Please try again.');
-        }
-    };
+
+
+        setRefresh(refresh => !refresh)
+
+
+
+    }
 
     const getStatusColor = (status: string) => {
         switch (status) {
@@ -153,11 +159,13 @@ const ServicesScreen = () => {
                 <View className="p-4 gap-y-6 pb-24">
                     {/* Request Service Button */}
                     <TouchableOpacity
-                        className="bg-[#4548b9] rounded-2xl p-6 shadow-lg"
+                        className="bg-[#254292] rounded-2xl p-6 shadow-lg"
                         onPress={() => {
                             SheetManager.show(SHEET_IDS.SERVICE_REQUEST_SHEET, {
                                 payload: {
-                                    onSubmit: handleSubmitServiceRequest
+                                    onSubmit: handleSubmitServiceRequest,
+                                    createServiceRequest: createServiceRequest,
+                                    currentSession: currentSession
                                 }
                             });
                         }}

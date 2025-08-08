@@ -106,11 +106,11 @@ const successrequest = () => {
                 {/* Step 1 */}
                 <View className="flex-row items-start mb-8">
                     <View className="mr-4 mt-1">
-                        <View className="w-2 h-2 bg-[#4548b9] rounded-full"></View>
+                        <View className="w-2 h-2 bg-[#254292] rounded-full"></View>
                         <View className="w-0.5 h-12 bg-gray-300 ml-0.5 mt-2"></View>
                     </View>
                     <View className="flex-row items-center flex-1">
-                        <View className="w-12 h-12 bg-[#4548b9] rounded-xl items-center justify-center mr-4">
+                        <View className="w-12 h-12 bg-[#254292] rounded-xl items-center justify-center mr-4">
                             <CallSvgIcon></CallSvgIcon>
                         </View>
                         <View className="flex-1">
@@ -127,11 +127,11 @@ const successrequest = () => {
                 {/* Step 2 */}
                 <View className="flex-row items-start mb-8">
                     <View className="mr-4 mt-1">
-                        <View className="w-2 h-2 bg-[#4548b9] rounded-full"></View>
+                        <View className="w-2 h-2 bg-[#254292] rounded-full"></View>
                         <View className="w-0.5 h-12 bg-gray-300 ml-0.5 mt-2"></View>
                     </View>
                     <View className="flex-row items-center flex-1">
-                        <View className="w-12 h-12 bg-[#4548b9] rounded-xl items-center justify-center mr-4">
+                        <View className="w-12 h-12 bg-[#254292] rounded-xl items-center justify-center mr-4">
                             <AgentIcon></AgentIcon>
                         </View>
                         <View className="flex-1">
@@ -148,10 +148,10 @@ const successrequest = () => {
                 {/* Step 3 */}
                 <View className="flex-row items-start mb-8">
                     <View className="mr-4 mt-1">
-                        <View className="w-2 h-2 bg-[#4548b9] rounded-full"></View>
+                        <View className="w-2 h-2 bg-[#254292] rounded-full"></View>
                     </View>
                     <View className="flex-row items-center flex-1">
-                        <View className="w-12 h-12 bg-[#4548b9] rounded-xl items-center justify-center mr-4">
+                        <View className="w-12 h-12 bg-[#254292] rounded-xl items-center justify-center mr-4">
                             <LoginIcon></LoginIcon>
                         </View>
                         <View className="flex-1">
@@ -180,8 +180,8 @@ const successrequest = () => {
             <View className="px-6 mt-auto mb-8">
                 {/* OK Button */}
                 <TouchableOpacity
-                    className="bg-[#4548b9] py-3 rounded-xl mb-4"
-                    onPress={handleOkPress}
+                    className="bg-[#254292] py-3 rounded-xl mb-4"
+                    onPress={() => router.push('/(newuser)/(tabs)/requests')}
 
                 >
                     <Text
@@ -194,7 +194,7 @@ const successrequest = () => {
 
                 {/* Continue and Select Plan Button */}
                 <TouchableOpacity
-                    className="bg-white border border-[#4548b9] py-3 rounded-xl"
+                    className="bg-white border border-[#254292] py-3 rounded-xl"
                     onPress={() => router.push('/(newuser)/(tabs)/requests')}
 
                 >

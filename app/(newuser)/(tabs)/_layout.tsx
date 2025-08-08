@@ -3,69 +3,84 @@ import React from 'react';
 import { Platform } from 'react-native';
 
 import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import Svg, { Path } from 'react-native-svg';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const ProfileFillIcon = ({ color = "#292D32" }) => (
-    <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
+
+
+const NormalrequestIcon = () => <Svg
+
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    fill="none"
+
+>
+    <Path
+        d="M3 9.11v5.77C3 17 3 17 5 18.35l5.5 3.18c.83.48 2.18.48 3 0l5.5-3.18c2-1.35 2-1.35 2-3.46V9.11C21 7 21 7 19 5.65l-5.5-3.18c-.82-.48-2.17-.48-3 0L5 5.65C3 7 3 7 3 9.11z"
+        stroke="#292D32"
+        strokeWidth={1.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    />
+    <Path
+        d="M12 15a3 3 0 100-6 3 3 0 000 6z"
+        stroke="#292D32"
+        strokeWidth={1.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    />
+</Svg>
+
+const FillRequestIcon = ({ color = "#292D32" }) => (
+    <Svg
+        width={24}
+        height={24}
+        viewBox="0 0 24 24"
+        fill="none"
+    >
         <Path
-            d="M20.1 9.22c-1.81 0-2.55-1.28-1.65-2.85.52-.91.21-2.07-.7-2.59l-1.73-.99c-.79-.47-1.81-.19-2.28.6l-.11.19c-.9 1.57-2.38 1.57-3.29 0l-.11-.19a1.641 1.641 0 00-2.26-.6l-1.73.99c-.91.52-1.22 1.69-.7 2.6.91 1.56.17 2.84-1.64 2.84-1.04 0-1.9.85-1.9 1.9v1.76c0 1.04.85 1.9 1.9 1.9 1.81 0 2.55 1.28 1.64 2.85-.52.91-.21 2.07.7 2.59l1.73.99c.79.47 1.81.19 2.28-.6l.11-.19c.9-1.57 2.38-1.57 3.29 0l.11.19c.47.79 1.49 1.07 2.28.6l1.73-.99c.91-.52 1.22-1.69.7-2.59-.91-1.57-.17-2.85 1.64-2.85 1.04 0 1.9-.85 1.9-1.9v-1.76a1.92 1.92 0 00-1.91-1.9zM12 15.25c-1.79 0-3.25-1.46-3.25-3.25S10.21 8.75 12 8.75s3.25 1.46 3.25 3.25-1.46 3.25-3.25 3.25z"
+            d="M18.94 5.42l-5.17-2.99c-.99-.57-2.54-.57-3.53 0L5.02 5.44c-2.07 1.4-2.19 1.61-2.19 3.84v5.43c0 2.23.12 2.45 2.23 3.87l5.17 2.99c.5.29 1.14.43 1.77.43.63 0 1.27-.14 1.76-.43l5.22-3.01c2.07-1.4 2.19-1.61 2.19-3.84V9.28c0-2.23-.12-2.44-2.23-3.86zM12 15.25c-1.79 0-3.25-1.46-3.25-3.25S10.21 8.75 12 8.75s3.25 1.46 3.25 3.25-1.46 3.25-3.25 3.25z"
             fill={color}
         />
     </Svg>
 );
 
-const RequestFillIcon = ({ color = "#292D32" }) => (
-    <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
-        <Path
-            d="M20.21 7.82l-7.7 4.46c-.31.18-.7.18-1.02 0L3.792 7.82c-.55-.32-.69-1.07-.27-1.54.29-.33.62-.6.97-.79l5.42-3c1.16-.65 3.04-.65 4.2 0l5.42 3c.35.19.68.47.97.79.4.47.26 1.22-.29 1.54zM11.431 14.14v6.82c0 .76-.77 1.26-1.45.93-2.06-1.01-5.53-2.9-5.53-2.9-1.22-.69-2.22-2.43-2.22-3.86V9.97c0-.79.83-1.29 1.51-.9l7.19 4.17c.3.19.5.53.5.9zM12.57 14.14v6.82c0 .76.77 1.26 1.45.93 2.06-1.01 5.53-2.9 5.53-2.9 1.22-.69 2.22-2.43 2.22-3.86V9.97c0-.79-.83-1.29-1.51-.9l-7.19 4.17c-.3.19-.5.53-.5.9z"
-            fill={color}
-        />
-    </Svg>
-);
+const ProfileNormalIcon = () => <Svg
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    fill="none"
 
-const ProfileIcon = ({ color = "#292D32" }) => (
-    <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
-        <Path
-            d="M12 15a3 3 0 100-6 3 3 0 000 6z"
-            stroke={color}
-            strokeWidth={1.5}
-            strokeMiterlimit={10}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        />
-        <Path
-            d="M2 12.88v-1.76c0-1.04.85-1.9 1.9-1.9 1.81 0 2.55-1.28 1.64-2.85-.52-.9-.21-2.07.7-2.59l1.73-.99c.79-.47 1.81-.19 2.28.6l.11.19c.9 1.57 2.38 1.57 3.29 0l.11-.19c.47-.79 1.49-1.07 2.28-.6l1.73.99c.91.52 1.22 1.69.7 2.59-.91 1.57-.17 2.85 1.64 2.85 1.04 0 1.9.85 1.9 1.9v1.76c0 1.04-.85 1.9-1.9 1.9-1.81 0-2.55 1.28-1.64 2.85.52.91.21 2.07-.7 2.59l-1.73.99c-.79.47-1.81.19-2.28-.6l-.11-.19c-.9-1.57-2.38-1.57-3.29 0l-.11.19c-.47.79-1.49 1.07-2.28.6l-1.73-.99a1.899 1.899 0 01-.7-2.59c.91-1.57.17-2.85-1.64-2.85-1.05 0-1.9-.86-1.9-1.9z"
-            stroke={color}
-            strokeWidth={1.5}
-            strokeMiterlimit={10}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        />
-    </Svg>
-);
+>
+    <Path
+        d="M12.16 10.87c-.1-.01-.22-.01-.33 0a4.42 4.42 0 01-4.27-4.43C7.56 3.99 9.54 2 12 2a4.435 4.435 0 01.16 8.87zM7.16 14.56c-2.42 1.62-2.42 4.26 0 5.87 2.75 1.84 7.26 1.84 10.01 0 2.42-1.62 2.42-4.26 0-5.87-2.74-1.83-7.25-1.83-10.01 0z"
+        stroke="#292D32"
+        strokeWidth={1.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    />
+</Svg>
 
-const RequestIcon = ({ color = "#292D32" }) => (
-    <Svg width={24} height={24} viewBox="0 0 24 24">
-        <Path
-            d="M3.171 7.44l8.83 5.11 8.77-5.08M12.001 21.61v-9.07"
-            stroke={color}
-            strokeWidth={1.5}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        />
-        <Path
-            d="M9.931 2.48l-5.34 2.96c-1.21.67-2.2 2.35-2.2 3.73v5.65c0 1.38.99 3.06 2.2 3.73l5.34 2.97c1.14.63 3.01.63 4.15 0l5.34-2.97c1.21-.67 2.2-2.35 2.2-3.73V9.17c0-1.38-.99-3.06-2.2-3.73l-5.34-2.97c-1.15-.63-3.01-.63-4.15.01z"
-            stroke={color}
-            strokeWidth={1.5}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        />
-    </Svg>
-);
+
+const ProfileFillIcon = ({ color = "#292D32" }) => <Svg
+
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    fill="none"
+
+>
+    <Path
+        d="M12 2C9.38 2 7.25 4.13 7.25 6.75c0 2.57 2.01 4.65 4.63 4.74.08-.01.16-.01.22 0h.07a4.738 4.738 0 004.58-4.74C16.75 4.13 14.62 2 12 2zM17.08 14.15c-2.79-1.86-7.34-1.86-10.15 0-1.27.85-1.97 2-1.97 3.23s.7 2.37 1.96 3.21C8.32 21.53 10.16 22 12 22c1.84 0 3.68-.47 5.08-1.41 1.26-.85 1.96-1.99 1.96-3.23-.01-1.23-.7-2.37-1.96-3.21z"
+        fill={color}
+    />
+</Svg>
+
+
+
 
 const HomeIcon = ({ color = "#292D32" }) => (
     <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
@@ -113,19 +128,22 @@ const HomeFillIcon = ({ color = "#292D32" }) => (
 
 export default function TabLayout() {
     const colorScheme = useColorScheme();
+    const insets = useSafeAreaInsets();
 
     return (
         <Tabs
             screenOptions={{
-                tabBarActiveTintColor: '#4548b9',
+                tabBarActiveTintColor: '#254292',
                 tabBarInactiveTintColor: '#8E8E93',
-          
+
                 tabBarButton: HapticTab,
                 tabBarBackground: TabBarBackground,
                 tabBarLabelStyle: {
                     fontFamily: 'PlusJakartaSans-SemiBold',
                     fontSize: 12,
                     marginTop: 4,
+                 
+
                 },
                 tabBarStyle: Platform.select({
                     ios: {
@@ -169,7 +187,7 @@ export default function TabLayout() {
                 name="index"
                 options={{
                     title: 'Home',
-                    tabBarIcon: ({ focused, color }) => 
+                    tabBarIcon: ({ focused, color }) =>
                         focused ? <HomeFillIcon color={color} /> : <HomeIcon color={color} />,
                     headerShadowVisible: false
                 }}
@@ -178,16 +196,16 @@ export default function TabLayout() {
                 name="requests"
                 options={{
                     title: 'Requests',
-                    tabBarIcon: ({ focused, color }) => 
-                        focused ? <RequestFillIcon color={color} /> : <RequestIcon color={color} />,
+                    tabBarIcon: ({ focused, color }) =>
+                        focused ? <FillRequestIcon color={color} /> : <NormalrequestIcon />,
                 }}
             />
             <Tabs.Screen
                 name="profile"
                 options={{
                     title: 'Profile',
-                    tabBarIcon: ({ focused, color }) => 
-                        focused ? <ProfileFillIcon color={color} /> : <ProfileIcon color={color} />,
+                    tabBarIcon: ({ focused, color }) =>
+                        focused ? <ProfileFillIcon color={color} /> : <ProfileNormalIcon />,
                 }}
             />
         </Tabs>

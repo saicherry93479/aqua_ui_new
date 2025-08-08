@@ -1,17 +1,15 @@
+import {
+    Check,
+    ChevronDown
+} from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
-    View,
+    FlatList,
+    Modal,
     Text,
     TouchableOpacity,
-    Modal,
-    FlatList,
-    Pressable,
+    View
 } from 'react-native';
-import {
-    ChevronDown,
-    Check,
-    X,
-} from 'lucide-react-native';
 import { DynamicInput } from './DynamicInput';
 
 export interface SelectOption {
@@ -303,7 +301,7 @@ export const DynamicSelect: React.FC<DynamicSelectProps> = ({
                                     </View>
                                 </View>
                                 {value?.id === item.id && (
-                                    <Check size={20} color="#4548b9" />
+                                    <Check size={20} color="#254292" />
                                 )}
                             </TouchableOpacity>
                         )}

@@ -2,7 +2,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const BASE_URL = 'http://192.168.1.3:3000/api';
+const BASE_URL = 'https://aqua-home-backend-latest.onrender.com/api';
 
 export interface ApiResponse<T = any> {
   success: boolean;

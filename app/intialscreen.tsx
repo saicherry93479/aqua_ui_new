@@ -1,3 +1,7 @@
+import { apiService } from '@/api/api';
+import { useAuth } from '@/contexts/AuthContext';
+import { useSubscription } from '@/contexts/SubscriptionContext';
+import { router } from 'expo-router';
 import React, { useEffect } from 'react';
 import {
     ImageBackground,
@@ -9,10 +13,6 @@ import {
 import { SheetManager } from 'react-native-actions-sheet';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SHEET_IDS } from './sheets';
-import { apiService } from '@/api/api';
-import { useAuth } from '@/contexts/AuthContext';
-import { useSubscription } from '@/contexts/SubscriptionContext';
-import { router } from 'expo-router';
 
 const AquaHomeOnboarding = () => {
 
@@ -69,9 +69,9 @@ const AquaHomeOnboarding = () => {
                     })
                 }} className="mb-4 rounded-2xl overflow-hidden shadow-sm">
                     <ImageBackground
-                        source={{ uri: 'https://images.unsplash.com/photo-1556740758-90de374c12ad?w=500&h=200&fit=crop' }}
+                        source={{ uri: 'https://i.pinimg.com/1200x/82/e9/24/82e9243f695409cdd6c2dd2b0bd5522f.jpg' }}
                         className="h-40 justify-end"
-                        imageStyle={{ opacity: 0.8 }}
+                        imageStyle={{ opacity: 1 }}
                     >
                         <View className="bg-black/40 absolute inset-0" />
                         <View className="p-6 relative z-10">
@@ -88,7 +88,7 @@ const AquaHomeOnboarding = () => {
                                 Login to your account
                             </Text>
                             <View
-                                className="bg-[#4548b9] px-8 py-2 rounded-xl self-start"
+                                className="bg-[#254292] px-8 py-2 rounded-xl self-start"
 
                             >
                                 <Text
@@ -129,11 +129,11 @@ const AquaHomeOnboarding = () => {
                 }
                 }} className="mb-4 rounded-2xl overflow-hidden shadow-sm">
                     <ImageBackground
-                        source={{ uri: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=500&h=200&fit=crop' }}
+                        source={{ uri: 'https://i.pinimg.com/1200x/82/e9/24/82e9243f695409cdd6c2dd2b0bd5522f.jpg' }}
                         className="h-40 justify-end"
-                        imageStyle={{ opacity: 0.8 }}
+                        imageStyle={{ opacity: 1 }}
                     >
-                        <View className="bg-black/40 absolute inset-0" />
+                        <View className=" bg-black/40 absolute inset-0" />
                         <View className="p-6 relative z-10">
                             <Text
                                 className="text-white text-lg mb-1 leading-8"
@@ -142,13 +142,13 @@ const AquaHomeOnboarding = () => {
                                 I want a new AquaHome
                             </Text>
                             <Text
-                                className="text-white/90 text-sm mb-4"
+                                className="text-white text-sm mb-4"
                                 style={{ fontFamily: 'PlusJakartaSans-Regular' }}
                             >
                                 Book your purifier now
                             </Text>
                             <View
-                                className="bg-[#4548b9] px-8 py-2 rounded-xl self-start"
+                                className="bg-[#254292] px-8 py-2 rounded-xl self-start"
 
                             >
                                 <Text

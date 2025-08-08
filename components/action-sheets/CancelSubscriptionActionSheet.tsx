@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import ActionSheet, { SheetManager } from 'react-native-actions-sheet';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  TextInput,
-  Alert,
-  Keyboard,
-} from 'react-native';
-import { X, TriangleAlert as AlertTriangle } from 'lucide-react-native';
-import { GlobalLoader } from '../GlobalLoader';
 import { apiService } from '@/api/api';
 import { useSubscription } from '@/contexts/SubscriptionContext';
+import { TriangleAlert as AlertTriangle, X } from 'lucide-react-native';
+import React, { useState } from 'react';
+import {
+  Alert,
+  Keyboard,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import ActionSheet, { SheetManager } from 'react-native-actions-sheet';
+import { GlobalLoader } from '../GlobalLoader';
 
 interface CancelSubscriptionActionSheetProps {
   sheetId: string;
@@ -184,7 +184,7 @@ export function CancelSubscriptionActionSheet({ sheetId, payload }: CancelSubscr
               </Text>
 
               <TouchableOpacity
-                className="w-full py-4 rounded-xl bg-[#4548b9]"
+                className="w-full py-4 rounded-xl bg-[#254292]"
                 onPress={handleClose}
               >
                 <Text

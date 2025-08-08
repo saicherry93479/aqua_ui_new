@@ -1,44 +1,40 @@
-import React, { useState } from 'react';
-import ActionSheet, { SheetManager } from 'react-native-actions-sheet';
+import * as ImagePicker from 'expo-image-picker';
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  TextInput,
-  ScrollView,
-  Alert,
-  Image,
-  Keyboard,
-} from 'react-native';
-import {
-  X,
   ArrowLeft,
   ArrowRight,
   Camera,
-  Upload,
   Trash2,
+  Upload,
+  X,
 } from 'lucide-react-native';
+import React, { useState } from 'react';
+import {
+  Alert,
+  Image,
+  Keyboard,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import ActionSheet, { SheetManager } from 'react-native-actions-sheet';
 import { GlobalLoader } from '../GlobalLoader';
-import * as ImagePicker from 'expo-image-picker';
 
 interface ServiceRequestActionSheetProps {
   sheetId: string;
   payload?: {
-    onSubmit: (data: ServiceRequestData) => void;
+    onSubmit: () => void;
+    createServiceRequest: any,
+    currentSession: any
   };
 }
 
-interface ServiceRequestData {
-  serviceType: string;
-  description: string;
-  photos: string[];
-}
 
 const serviceTypes = [
   { id: 'filter_replacement', name: 'Filter Replacement', icon: '🔧' },
   { id: 'maintenance', name: 'Maintenance Check', icon: '⚙️' },
   { id: 'repair', name: 'Repair Service', icon: '🛠️' },
-  { id: 'installation', name: 'Installation', icon: '📦' },
   { id: 'other', name: 'Others', icon: '❓' },
 ];
 
@@ -162,21 +158,36 @@ export function ServiceRequestActionSheet({ sheetId, payload }: ServiceRequestAc
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      const requestData: ServiceRequestData = {
-        serviceType: selectedServiceType,
-        description: description.trim(),
-        photos,
-      };
-
-      if (payload?.onSubmit) {
-        payload.onSubmit(requestData);
+      if (!payload?.currentSession) {
+        Alert.alert('Error', 'No active session found');
+        return;
       }
+
+      await payload?.createServiceRequest({
+        productId: payload?.currentSession.subscription.productId,
+        subscriptionId: payload?.currentSession.subscription.id,
+        type: selectedServiceType,
+        description: description.trim(),
+        images: photos || [],
+      });
+
+
+
 
       Alert.alert(
         'Request Submitted',
         'Your service request has been submitted successfully. Our team will contact you shortly.',
-        [{ text: 'OK', onPress: handleClose }]
+        [{
+          text: 'OK', onPress: () => {
+            handleClose(),
+              payload?.onSubmit()
+          }
+        }]
       );
+
+
+
+
     } catch (error) {
       Alert.alert('Error', 'Something went wrong. Please try again.');
     } finally {
@@ -192,6 +203,9 @@ export function ServiceRequestActionSheet({ sheetId, payload }: ServiceRequestAc
         paddingBottom: 0,
       }}
       closable={true}
+      gestureEnabled={false}
+      closeOnTouchBackdrop={false}
+      closeOnPressBack={false}
     >
       <View className="relative bg-white">
         <GlobalLoader isVisible={isLoading} message="Submitting request..." />
@@ -234,19 +248,17 @@ export function ServiceRequestActionSheet({ sheetId, payload }: ServiceRequestAc
                   {serviceTypes.map((type) => (
                     <TouchableOpacity
                       key={type.id}
-                      className={`p-4 rounded-xl border-2 ${
-                        selectedServiceType === type.id
-                          ? 'border-[#4548b9] bg-blue-50'
-                          : 'border-gray-200 bg-white'
-                      }`}
+                      className={`p-4 rounded-xl border-2 ${selectedServiceType === type.id
+                        ? 'border-[#254292] bg-blue-50'
+                        : 'border-gray-200 bg-white'
+                        }`}
                       onPress={() => setSelectedServiceType(type.id)}
                     >
                       <View className="flex-row items-center gap-3">
                         <Text className="text-2xl">{type.icon}</Text>
                         <Text
-                          className={`text-base ${
-                            selectedServiceType === type.id ? 'text-[#4548b9]' : 'text-gray-700'
-                          }`}
+                          className={`text-base ${selectedServiceType === type.id ? 'text-[#254292]' : 'text-gray-700'
+                            }`}
                           style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}
                         >
                           {type.name}
@@ -257,17 +269,15 @@ export function ServiceRequestActionSheet({ sheetId, payload }: ServiceRequestAc
                 </View>
 
                 <TouchableOpacity
-                  className={`mt-6 py-4 rounded-xl ${
-                    selectedServiceType ? 'bg-[#4548b9]' : 'bg-gray-300'
-                  }`}
+                  className={`mt-6 py-4 rounded-xl ${selectedServiceType ? 'bg-[#254292]' : 'bg-gray-300'
+                    }`}
                   onPress={handleNext}
                   disabled={!selectedServiceType}
                 >
                   <View className="flex-row items-center justify-center">
                     <Text
-                      className={`text-base mr-2 ${
-                        selectedServiceType ? 'text-white' : 'text-gray-500'
-                      }`}
+                      className={`text-base mr-2 ${selectedServiceType ? 'text-white' : 'text-gray-500'
+                        }`}
                       style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}
                     >
                       Next
@@ -303,17 +313,15 @@ export function ServiceRequestActionSheet({ sheetId, payload }: ServiceRequestAc
                 />
 
                 <TouchableOpacity
-                  className={`mt-6 py-4 rounded-xl ${
-                    description.trim() ? 'bg-[#4548b9]' : 'bg-gray-300'
-                  }`}
+                  className={`mt-6 py-4 rounded-xl ${description.trim() ? 'bg-[#254292]' : 'bg-gray-300'
+                    }`}
                   onPress={handleNext}
                   disabled={!description.trim()}
                 >
                   <View className="flex-row items-center justify-center">
                     <Text
-                      className={`text-base mr-2 ${
-                        description.trim() ? 'text-white' : 'text-gray-500'
-                      }`}
+                      className={`text-base mr-2 ${description.trim() ? 'text-white' : 'text-gray-500'
+                        }`}
                       style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}
                     >
                       Next
@@ -401,7 +409,7 @@ export function ServiceRequestActionSheet({ sheetId, payload }: ServiceRequestAc
                 </View>
 
                 <TouchableOpacity
-                  className="py-4 rounded-xl bg-[#4548b9]"
+                  className="py-4 rounded-xl bg-[#254292]"
                   onPress={handleSubmit}
                 >
                   <Text

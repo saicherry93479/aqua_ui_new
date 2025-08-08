@@ -1,8 +1,8 @@
-import React, { useState, useLayoutEffect, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
-import { router, useNavigation } from 'expo-router';
 import { apiService } from '@/api/api';
-import Svg, { Path, Circle } from 'react-native-svg';
+import { router, useNavigation } from 'expo-router';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
+import { ActivityIndicator, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import Svg, { Circle, Path } from 'react-native-svg';
 
 // Custom SVG Components
 const ClockIcon = ({ size = 20, color = "currentColor" }) => (
@@ -205,7 +205,7 @@ const RequestsScreen = () => {
     if (isLoading) {
         return (
             <View className="flex-1 justify-center items-center bg-gray-50">
-                <ActivityIndicator size="large" color="#4548b9" />
+                <ActivityIndicator size="large" color="#254292" />
                 <Text
                     className="mt-4 text-gray-600"
                     style={{ fontFamily: 'PlusJakartaSans-Medium' }}
@@ -226,7 +226,7 @@ const RequestsScreen = () => {
                     {error}
                 </Text>
                 <TouchableOpacity
-                    className="bg-[#4548b9] px-6 py-3 rounded-2xl"
+                    className="bg-[#254292] px-6 py-3 rounded-2xl"
                     onPress={() => fetchRequests()}
                 >
                     <Text
@@ -248,7 +248,7 @@ const RequestsScreen = () => {
                     <RefreshControl
                         refreshing={isRefreshing}
                         onRefresh={() => fetchRequests(true)}
-                        colors={['#4548b9']}
+                        colors={['#254292']}
                     />
                 }
             >
@@ -293,7 +293,7 @@ const RequestsScreen = () => {
                                     </View>
                                     <View className={`px-3 py-1 rounded-full ${getStatusColor(request.status)}`}>
                                         <Text
-                                            className="text-xs"
+                                            className="text-base"
                                             style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}
                                         >
                                             {getStatusText(request.status)}

@@ -1,22 +1,22 @@
-import React, { useState } from 'react';
-import ActionSheet, { SheetManager } from 'react-native-actions-sheet';
+import { router } from 'expo-router';
 import {
-    View,
-    Text,
-    TouchableOpacity,
+    ArrowRight,
+    MapPin,
+    X,
+} from 'lucide-react-native';
+import React, { useState } from 'react';
+import {
     ActivityIndicator,
     Alert,
     Keyboard,
     ScrollView,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
-import {
-    X,
-    ArrowRight,
-    MapPin,
-} from 'lucide-react-native';
+import ActionSheet, { SheetManager } from 'react-native-actions-sheet';
 import { DynamicInput } from '../DynamicInput';
 import { DynamicSelect, SelectOption } from '../DynamicSelect';
-import { router } from 'expo-router';
 
 interface OnboardingActionSheetProps {
     sheetId: string;
@@ -423,7 +423,7 @@ export function OnboardingActionSheet({ sheetId, payload }: OnboardingActionShee
                         <TouchableOpacity
                             className={`flex-row items-center justify-center py-4 rounded-xl ${isCompleteDisabled
                                 ? 'bg-gray-300'
-                                : 'bg-[#4548b9]'
+                                : 'bg-[#254292]'
                                 }`}
                             onPress={handleComplete}
                             disabled={isCompleteDisabled}

@@ -1,7 +1,8 @@
-import { router, useNavigation } from 'expo-router';
-import React, { useLayoutEffect } from 'react';
-import { Dimensions, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useSubscription } from '@/contexts/SubscriptionContext';
+import { router, useNavigation } from 'expo-router';
+import { RefreshCw } from 'lucide-react-native';
+import React, { useLayoutEffect, useState } from 'react';
+import { ActivityIndicator, Dimensions, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import Svg, { Circle, Path, Polyline } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
@@ -58,6 +59,7 @@ const CalendarIcon = ({ size = 20, color = "currentColor" }) => (
 const WaterPurifierApp = () => {
     const navigation = useNavigation();
     const { currentSession, refreshSubscription } = useSubscription();
+    const [isLoading, setIsLoading] = useState(false);
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -72,6 +74,26 @@ const WaterPurifierApp = () => {
                     AquaHome
                 </Text>
             ),
+            headerRight: () => (
+                <TouchableOpacity
+                    onPress={handleReload}
+                    style={{
+                        marginRight: 16,
+                        padding: 4,
+                        opacity: isLoading ? 0.5 : 1,
+                    }}
+                    disabled={isLoading}
+                >
+                    {isLoading ? (
+                        <ActivityIndicator size={24} color="#1F2937" />
+                    ) : (
+                        <RefreshCw
+                            size={24}
+                            color="#1F2937"
+                        />
+                    )}
+                </TouchableOpacity>
+            ),
             headerTitleAlign: 'center',
             headerBackTitleVisible: false,
             headerShadowVisible: false,
@@ -79,7 +101,16 @@ const WaterPurifierApp = () => {
                 backgroundColor: '#FFFFFF',
             }
         });
-    }, [navigation]);
+    }, [navigation, isLoading]);
+
+    const handleReload = () => {
+        console.log('Reload pressed');
+        setIsLoading(true)
+        refreshSubscription();
+        setTimeout(() => {
+            setIsLoading(false);
+        }, 2000)
+    };
 
     const subscription = currentSession?.subscription;
     const customer = subscription?.customer;
@@ -104,7 +135,7 @@ const WaterPurifierApp = () => {
         <ScrollView className="flex-1 bg-gray-50" showsVerticalScrollIndicator={false}>
             {/* Hero Section */}
             {/* <LinearGradient
-                colors={['#4548b9', '#6366f1']}
+                colors={['#254292', '#6366f1']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 className="mx-4 mt-4 rounded-2xl overflow-hidden"
@@ -139,7 +170,7 @@ const WaterPurifierApp = () => {
             </LinearGradient> */}
 
             {/* Rental Plan Card */}
-            <View className="bg-[#4548b9] mx-4 rounded-2xl shadow-sm p-5">
+            <View className="bg-[#254292] mx-4 rounded-2xl shadow-sm p-5">
                 <View className="flex-row items-center justify-between mb-4">
                     <Text className="text-xl text-white" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
                         {subscription?.planName || 'Your Plan Details'}
@@ -161,7 +192,7 @@ const WaterPurifierApp = () => {
                             Plan Start
                         </Text>
                         <Text className="text-base text-gray-900" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
-                            {subscription?.startDate ? new Date(subscription.startDate).toLocaleDateString() : '21 May 2023'}
+                            {subscription?.startDate ? new Date(subscription.startDate).toDateString() : 'N/A'}
                         </Text>
                     </View>
                     <View className="flex-1 bg-gray-50 rounded-xl p-4">
@@ -169,7 +200,7 @@ const WaterPurifierApp = () => {
                             Next Payment
                         </Text>
                         <Text className="text-base text-gray-900" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
-                            {subscription?.nextPaymentDate ? new Date(subscription.nextPaymentDate).toLocaleDateString() : '20 May 2025'}
+                            {subscription?.nextPaymentDate ? new Date(subscription.nextPaymentDate).toDateString() : 'N/A'}
                         </Text>
                     </View>
                 </View>
@@ -239,7 +270,7 @@ const WaterPurifierApp = () => {
                 {/* Upcoming Payment Card */}
                 <View className="bg-white rounded-2xl p-5 border border-orange-100">
                     <View className="flex-row items-center gap-3 mb-4">
-                        <View className="w-12 h-12 rounded-full bg-[#4548b9] items-center justify-center shadow-lg">
+                        <View className="w-12 h-12 rounded-full bg-[#254292] items-center justify-center shadow-lg">
                             <WalletIcon size={20} color="white" />
                         </View>
                         <View className="flex-1">
@@ -249,7 +280,7 @@ const WaterPurifierApp = () => {
                             <View className="flex-row items-center gap-2">
                                 <CalendarIcon size={16} color="#6B7280" />
                                 <Text className="text-sm text-gray-600" style={{ fontFamily: 'PlusJakartaSans-Medium' }}>
-                                    {subscription?.nextPaymentDate ? new Date(subscription.nextPaymentDate).toLocaleDateString() : '20 May 2025'}
+                                    {subscription?.nextPaymentDate ? new Date(subscription.nextPaymentDate).toDateString() : 'N/A'}
                                 </Text>
                             </View>
                         </View>
@@ -260,7 +291,7 @@ const WaterPurifierApp = () => {
                             <Text className="text-sm text-gray-600 mb-1" style={{ fontFamily: 'PlusJakartaSans-Regular' }}>
                                 Monthly Rental
                             </Text>
-                            <Text className="text-3xl text-[#4548b9]" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
+                            <Text className="text-3xl text-[#254292]" style={{ fontFamily: 'PlusJakartaSans-Bold' }}>
                                 ₹{subscription?.monthlyAmount || 899}
                             </Text>
                         </View>
@@ -272,7 +303,7 @@ const WaterPurifierApp = () => {
                     </View>
 
                     <TouchableOpacity
-                        className="bg-[#4548b9] hidden rounded-xl py-4 flex-row items-center justify-center gap-2 shadow-lg"
+                        className="bg-[#254292] hidden rounded-xl py-4 flex-row items-center justify-center gap-2 shadow-lg"
                         onPress={() => router.push('/(connect)/(tabs)/payments')}
                     >
                         <Text className="text-white text-base" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
@@ -290,7 +321,7 @@ const WaterPurifierApp = () => {
                             Recent Activity
                         </Text>
                         <TouchableOpacity onPress={() => router.push('/(connect)/(tabs)/requests')}>
-                            <Text className="text-[#4548b9] text-sm" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
+                            <Text className="text-[#254292] text-sm" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
                                 View All
                             </Text>
                         </TouchableOpacity>
@@ -301,7 +332,7 @@ const WaterPurifierApp = () => {
                             recentServiceRequests.map((request) => (
                                 <View key={request.id} className="bg-white rounded-xl shadow-sm p-4 flex-row items-center gap-4">
                                     <View className={`w-12 h-12 rounded-full items-center justify-center ${request.status === 'COMPLETED' ? 'bg-green-50' :
-                                            request.status === 'SCHEDULED' ? 'bg-blue-50' : 'bg-orange-50'
+                                        request.status === 'SCHEDULED' ? 'bg-blue-50' : 'bg-orange-50'
                                         }`}>
                                         {request.status === 'COMPLETED' ? (
                                             <CheckCircle2Icon size={24} color="#10b981" />
@@ -318,10 +349,10 @@ const WaterPurifierApp = () => {
                                         </Text>
                                     </View>
                                     <View className={`px-3 py-1 rounded-full ${request.status === 'COMPLETED' ? 'bg-green-100' :
-                                            request.status === 'SCHEDULED' ? 'bg-blue-100' : 'bg-orange-100'
+                                        request.status === 'SCHEDULED' ? 'bg-blue-100' : 'bg-orange-100'
                                         }`}>
                                         <Text className={`text-xs ${request.status === 'COMPLETED' ? 'text-green-700' :
-                                                request.status === 'SCHEDULED' ? 'text-blue-700' : 'text-orange-700'
+                                            request.status === 'SCHEDULED' ? 'text-blue-700' : 'text-orange-700'
                                             }`} style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
                                             {request.status}
                                         </Text>
@@ -346,7 +377,7 @@ const WaterPurifierApp = () => {
 
                     <View className="gap-3">
                         <TouchableOpacity
-                            className="bg-[#4548b9] rounded-xl py-4 px-5 flex-row items-center justify-between"
+                            className="bg-[#254292] rounded-xl py-4 px-5 flex-row items-center justify-between"
                             onPress={() => router.push('/(connect)/(tabs)/requests')}
                         >
                             <Text className="text-white text-base" style={{ fontFamily: 'PlusJakartaSans-SemiBold' }}>
