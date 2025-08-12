@@ -74,6 +74,7 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
             };
 
             const response = await apiService.post('/subscriptions/check', data);
+            console.log('response  for connect ', response)
             return response.data;
         } catch (error) {
             console.error('Subscription check error:', error);
@@ -157,7 +158,8 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
                     text: 'OK',
                     onPress: () => {
                         handleClose();
-                        router.replace('/(connect)/(tabs)');
+                        // Fix: Use push instead of replace, and ensure the route exists
+                        router.push('/(connect)/(tabs)');
                     }
                 }]
             );
@@ -201,7 +203,8 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
                         text: 'OK',
                         onPress: () => {
                             handleClose();
-                            router.replace('/(connect)/(tabs)');
+                            // Fix: Use push instead of replace
+                            router.push('/(connect)/(tabs)');
                         }
                     }]
                 );

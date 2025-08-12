@@ -4,6 +4,7 @@ import { useSubscription } from '@/contexts/SubscriptionContext';
 import { router } from 'expo-router';
 import React, { useEffect } from 'react';
 import {
+    Alert,
     ImageBackground,
     Pressable,
     ScrollView,
@@ -35,7 +36,10 @@ const AquaHomeOnboarding = () => {
                     [
                         {
                             text: 'Continue Session',
-                            onPress: () => router.replace('/(connect)/(tabs)')
+                            onPress: () => {
+                                router.dismissAll()
+                                router.replace('/(connect)/(tabs)')
+                            }
                         },
                         {
                             text: 'Stay Here',
@@ -105,29 +109,34 @@ const AquaHomeOnboarding = () => {
                 {/* Subscribe Card */}
                 <Pressable onPress={() => {
 
-                    if(user?.hasOnboarded){
-                        router.push('/(newuser)/(tabs)')
-                    }else{
+                    if (user?.hasOnboarded) {
+                        // Navigate to new user tabs
+                        router.push('/(newuser)/(tabs)');
+                    } else {
+                        SheetManager.show('onboarding-sheet', {
+                            payload: {
+                                onComplete: async (data) => {
+                                    console.log('Onboarding completed with data:', data);
 
-                    SheetManager.show('onboarding-sheet', {
-                        payload: {
-                            onComplete: async (data) => {
-                                console.log('Onboarding completed with data:', data);
+                                    const response = await apiService.post('/auth/onboard', data);
+                                    console.log('onboard response ', response);
 
-                                const response = await apiService.post('/auth/onboard', data)
-                                console.log('onbaord response ',response)
-                                if (response.success) {
-                                    setUser(response.data.user)
-                                }
+                                    if (response.success) {
+                                        setUser(response.data.user);
+                                        // Navigate after successful onboarding
+                                        router.push('/(newuser)/(tabs)');
+                                    }
 
-                                return response
-                                // Handle the onboarding data
-                                // data will contain: { username, alternativePhone, city }
+                                    return response;
+                                },
                             },
-                        },
-                    });
-                }
-                }} className="mb-4 rounded-2xl overflow-hidden shadow-sm">
+                        });
+                    }
+
+
+
+                }}
+                    className="mb-4 rounded-2xl overflow-hidden shadow-sm">
                     <ImageBackground
                         source={{ uri: 'https://i.pinimg.com/1200x/82/e9/24/82e9243f695409cdd6c2dd2b0bd5522f.jpg' }}
                         className="h-40 justify-end"

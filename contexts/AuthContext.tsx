@@ -13,10 +13,7 @@ import { PushNotificationService } from '@/utils/PushNotificationService';
 
 export enum UserRole {
   CUSTOMER = 'customer',
-
 }
-
-
 
 export interface User {
   id: string;
@@ -32,7 +29,6 @@ export interface User {
   avatar?: string;
   address?: string;
   alternativePhone?: string
-
 }
 
 export interface ViewAsState {
@@ -58,8 +54,6 @@ interface AuthContextType {
     success: boolean;
   }>;
   logout: () => Promise<void>;
-
-
 
   // Refresh user data
   refreshUser: () => Promise<void>;
@@ -115,12 +109,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (accessToken[1] && userProfile[1]) {
         const parsedUser = JSON.parse(userProfile[1]);
-        setUser(parsedUser);
-
+        
         if (viewAsData[1]) {
           const parsedViewAs = JSON.parse(viewAsData[1]);
           setViewAsState(parsedViewAs);
         }
+
+        // Set user first to prevent auth screen from showing
+        setUser(parsedUser);
 
         // Validate token with backend
         try {
@@ -141,6 +137,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log('Auth initialization error:', error);
       await clearAuthData();
     } finally {
+      // Only set loading false after everything is complete
       setIsLoading(false);
     }
   };
@@ -164,14 +161,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const formattedPhone = '+91' + phoneNumber.replace(/\D/g, '');
       console.log('Formatted phone:', formattedPhone);
 
-      // For web platform in Expo, you might need reCAPTCHA
- 
-   
-
       const confirmation = await signInWithPhoneNumber(
         getAuth(),
         formattedPhone,
-  
       );
 
       console.log('=== OTP Sent Successfully ===');
@@ -254,7 +246,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           userFriendlyMessage = 'The request took too long. Please check your connection and try again.';
           break;
 
-        // Expo/React Native specific errors
         case 'auth/missing-app-credential':
           userFriendlyTitle = 'App Configuration Error';
           userFriendlyMessage = 'App is not properly configured. Please contact support.';
@@ -265,7 +256,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           userFriendlyMessage = 'Invalid app configuration. Please update the app.';
           break;
 
-        // Handle reCAPTCHA specific errors (mainly for web)
         case 'auth/recaptcha-not-enabled':
           userFriendlyTitle = 'Security Feature Required';
           userFriendlyMessage = 'Security verification is required but not enabled. Please contact support.';
@@ -277,7 +267,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           break;
 
         default:
-          // Handle unknown errors with more context
           if (errorMessage?.toLowerCase().includes('network')) {
             userFriendlyTitle = 'Connection Problem';
             userFriendlyMessage = 'Unable to connect to our servers. Please check your internet connection.';
@@ -292,7 +281,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             userFriendlyMessage = 'Something unexpected happened. Please try again or contact support.';
           }
 
-          // Log unknown errors for debugging in development
           if (__DEV__) {
             console.warn('Unknown Firebase Auth Error:', {
               code: errorCode,
@@ -304,7 +292,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           break;
       }
 
-      // Show user-friendly alert with platform-specific options
       const alertButtons = [
         {
           text: 'OK',
@@ -312,7 +299,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       ];
 
-      // Add retry option for recoverable errors
       if ([
         'auth/network-request-failed',
         'auth/timeout',
@@ -323,7 +309,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           text: 'Retry',
           style: 'default' as const,
           onPress: () => {
-            // Add small delay before retry
             setTimeout(() => {
               sendOTP(phoneNumber, customerType);
             }, 1000);
@@ -332,12 +317,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       Alert.alert(userFriendlyTitle, userFriendlyMessage, alertButtons);
-
       throw error;
     }
   };
-
-
 
   const verifyOTP = async (otp: string, role: string): Promise<{
     nextScreen: string;
@@ -349,16 +331,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         throw new Error('No OTP confirmation found. Please request a new OTP.');
       }
 
-      // Verify OTP
       const result = await confirmation.confirm(otp);
       const idToken = await result.user.getIdToken();
 
       console.log('OTP verification successful, sending to backend...');
 
-      // Send idToken and role to backend for authentication
       const response = await apiService.post('/auth/login', {
         idToken,
-        role: 'customer' // Send the role that was selected during login
+        role: 'customer'
       });
 
       console.log('Backend login response:', response);
@@ -368,7 +348,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         console.log('userData', userData);
 
-        // Store tokens and user data
         await AsyncStorage.multiSet([
           ['accessToken', accessToken],
           ['refreshToken', refreshToken],
@@ -376,7 +355,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         ]);
 
         setUser(userData);
-        setConfirmation(null); // Clear confirmation after successful verification
+        setConfirmation(null);
 
         let nextScreen = userData ? '/intialscreen' : '/';
 
@@ -389,11 +368,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     } catch (error: any) {
       console.log('Verify OTP error:', error);
-
-      // Clear confirmation on error so user can try again
       setConfirmation(null);
 
-      // Re-throw with a user-friendly message
       if (error.code === 'auth/invalid-verification-code') {
         throw new Error('Invalid OTP. Please check the code and try again.');
       } else if (error.code === 'auth/code-expired') {
@@ -409,15 +385,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = async () => {
     try {
       setIsLoading(true);
-
-
       await signOut(getAuth());
-
-
-      // Clear local storage
       await clearAuthData();
 
-      // Reset state
       setUser(null);
       setConfirmation(null);
       setViewAsState({
@@ -442,37 +412,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     ]);
   };
 
-
-
-
   const refreshUser = async () => {
     try {
       const response = await apiService.get('/auth/me');
       console.log('response in refreshuser ', response);
+      
       if (response.success) {
-        // Only update if not in view-as mode
-
-        setUser({
+        const updatedUser = {
           ...response.data.user,
           hasOnboarded: response.data.user.hasOnboarded,
-        });
-        // todo
-        if (response.data.user) {
-          router.replace('/intialscreen');
-        } else {
-          router.replace('/(auth)');
-        }
-
+        };
+        
+        setUser(updatedUser);
+        
+        // Update AsyncStorage with fresh user data
+        await AsyncStorage.setItem('userProfile', JSON.stringify(updatedUser));
+        
+        // Only navigate if we're not already on the right screen
+        // Remove automatic navigation from refreshUser to prevent conflicts
+        // Let the RootLayout handle navigation based on auth state
+        
       } else {
-        router.replace('/(auth)');
-        // Handle non-success response
         throw new Error('Failed to refresh user data');
-
       }
     } catch (error: any) {
       console.log('Refresh user error:', error);
 
-      // Clear auth data immediately when refresh fails
       await clearAuthData();
       setUser(null);
       setViewAsState({
@@ -481,12 +446,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         currentViewRole: null,
       });
 
-      // Then redirect to auth screen
+      // Only navigate to auth if we're not already there
       router.replace('/(auth)');
     }
   };
-
-
 
   const value: AuthContextType = {
     user,

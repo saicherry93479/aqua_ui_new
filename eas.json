@@ -1,34 +1,37 @@
 {
     "cli": {
-      "version": ">= 16.7.0",
-      "appVersionSource": "remote"
+        "version": ">= 16.7.0",
+        "appVersionSource": "remote"
     },
     "build": {
-      "local-apk": {
-        "distribution": "internal",
-        "android": {
-          "buildType": "apk"
-        }
-      },
-      "development": {
-        "distribution": "internal",
-        "android": {
-          "buildType": "apk"
-        }
-      },
-      "preview": {
-        "distribution": "internal",
-        "android": {
-          "buildType": "apk"
+        "local-apk": {
+            "distribution": "internal",
+            "android": {
+                "buildType": "apk"
+            }
         },
-        "autoIncrement": true
-      },
-      "production": {
-        "autoIncrement": true
-      }
+        "development": {
+            "distribution": "internal",
+            "android": {
+                "buildType": "apk"
+            }
+        },
+        "preview": {
+            "distribution": "internal",
+            "android": {
+                "buildType": "apk"
+            },
+            "autoIncrement": true
+        },
+        "production": {
+            "distribution": "store",
+            "android": {
+                "buildType": "app-bundle"
+            },
+            "autoIncrement": true
+        }
     },
     "submit": {
-      "production": {}
+        "production": {}
     }
-  }
-  
+}

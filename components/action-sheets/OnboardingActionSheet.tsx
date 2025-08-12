@@ -58,114 +58,154 @@ interface ErrorResponse {
     error: string;
     message: string;
 }
-
-// Sample cities data - convert to SelectOption format
 const CITY_OPTIONS: SelectOption[] = [
     {
         id: '1',
-        label: 'Mumbai',
-        value: 'mumbai',
-        subtitle: 'Maharashtra',
-        icon: <MapPin size={20} color="#6B7280" />
-    },
-    {
-        id: '2',
-        label: 'Delhi',
-        value: 'delhi',
-        subtitle: 'Delhi',
-        icon: <MapPin size={20} color="#6B7280" />
-    },
-    {
-        id: '3',
-        label: 'Bangalore',
-        value: 'bangalore',
-        subtitle: 'Karnataka',
-        icon: <MapPin size={20} color="#6B7280" />
-    },
-    {
-        id: '4',
-        label: 'Hyderabad',
-        value: 'hyderabad',
+        label: 'Suryapet',
+        value: 'suryapet',
         subtitle: 'Telangana',
         icon: <MapPin size={20} color="#6B7280" />
     },
     {
+        id: '2',
+        label: 'Nalgonda',
+        value: 'nalgonda',
+        subtitle: 'Telangana',
+        icon: <MapPin size={20} color="#6B7280" />
+    },
+    {
+        id: '3',
+        label: 'Khammam',
+        value: 'khammam',
+        subtitle: 'Telangana',
+        icon: <MapPin size={20} color="#6B7280" />
+    },
+    {
+        id: '4',
+        label: 'Jaggayyapeta',
+        value: 'jaggayyapeta',
+        subtitle: 'Andhra Pradesh',
+        icon: <MapPin size={20} color="#6B7280" />
+    },
+    {
         id: '5',
-        label: 'Chennai',
-        value: 'chennai',
-        subtitle: 'Tamil Nadu',
+        label: 'Mahbubabad',
+        value: 'mahbubabad',
+        subtitle: 'Telangana',
         icon: <MapPin size={20} color="#6B7280" />
     },
     {
         id: '6',
-        label: 'Kolkata',
-        value: 'kolkata',
-        subtitle: 'West Bengal',
+        label: 'Nandigama',
+        value: 'nandigama',
+        subtitle: 'Andhra Pradesh',
         icon: <MapPin size={20} color="#6B7280" />
     },
     {
         id: '7',
-        label: 'Pune',
-        value: 'pune',
-        subtitle: 'Maharashtra',
+        label: 'Bhongir',
+        value: 'bhongir',
+        subtitle: 'Telangana',
         icon: <MapPin size={20} color="#6B7280" />
     },
     {
         id: '8',
-        label: 'Jaipur',
-        value: 'jaipur',
-        subtitle: 'Rajasthan',
+        label: 'Devarkonda',
+        value: 'devarkonda',
+        subtitle: 'Telangana',
         icon: <MapPin size={20} color="#6B7280" />
     },
     {
         id: '9',
-        label: 'Lucknow',
-        value: 'lucknow',
-        subtitle: 'Uttar Pradesh',
+        label: 'Yellandu',
+        value: 'yellandu',
+        subtitle: 'Telangana',
         icon: <MapPin size={20} color="#6B7280" />
     },
     {
         id: '10',
-        label: 'Kanpur',
-        value: 'kanpur',
-        subtitle: 'Uttar Pradesh',
+        label: 'Gudur',
+        value: 'gudur',
+        subtitle: 'Telangana',
         icon: <MapPin size={20} color="#6B7280" />
     },
     {
         id: '11',
-        label: 'Nagpur',
-        value: 'nagpur',
-        subtitle: 'Maharashtra',
+        label: 'Jangaon',
+        value: 'jangaon',
+        subtitle: 'Telangana',
         icon: <MapPin size={20} color="#6B7280" />
     },
     {
         id: '12',
-        label: 'Indore',
-        value: 'indore',
-        subtitle: 'Madhya Pradesh',
+        label: 'Warangal',
+        value: 'warangal',
+        subtitle: 'Telangana',
         icon: <MapPin size={20} color="#6B7280" />
     },
     {
         id: '13',
-        label: 'Thane',
-        value: 'thane',
-        subtitle: 'Maharashtra',
+        label: 'Kodad',
+        value: 'kodad',
+        subtitle: 'Telangana',
         icon: <MapPin size={20} color="#6B7280" />
     },
     {
         id: '14',
-        label: 'Bhopal',
-        value: 'bhopal',
-        subtitle: 'Madhya Pradesh',
+        label: 'Huzurnagar',
+        value: 'huzurnagar',
+        subtitle: 'Telangana',
         icon: <MapPin size={20} color="#6B7280" />
     },
     {
         id: '15',
-        label: 'Visakhapatnam',
-        value: 'visakhapatnam',
-        subtitle: 'Andhra Pradesh',
+        label: 'Neredcherla',
+        value: 'neredcherla',
+        subtitle: 'Telangana',
         icon: <MapPin size={20} color="#6B7280" />
     },
+    {
+        id: '16',
+        label: 'Thirumalagiri',
+        value: 'thirumalagiri',
+        subtitle: 'Telangana',
+        icon: <MapPin size={20} color="#6B7280" />
+    },
+    {
+        id: '17',
+        label: 'Chilkur',
+        value: 'chilkur',
+        subtitle: 'Telangana',
+        icon: <MapPin size={20} color="#6B7280" />
+    },
+    {
+        id: '18',
+        label: 'Garidepally',
+        value: 'garidepally',
+        subtitle: 'Telangana',
+        icon: <MapPin size={20} color="#6B7280" />
+    },
+    {
+        id: '19',
+        label: 'Madhavaram',
+        value: 'madhavaram',
+        subtitle: 'Telangana',
+        icon: <MapPin size={20} color="#6B7280" />
+    },
+    {
+        id: '20',
+        label: 'Munagala',
+        value: 'munagala',
+        subtitle: 'Telangana',
+        icon: <MapPin size={20} color="#6B7280" />
+    },
+    {
+        id: '21',
+        label: 'Other',
+        value: 'other',
+        subtitle: 'Not listed above',
+        icon: <MapPin size={20} color="#6B7280" />
+    }
 ];
 
 export function OnboardingActionSheet({ sheetId, payload }: OnboardingActionSheetProps) {
