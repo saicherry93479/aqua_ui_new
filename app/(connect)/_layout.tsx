@@ -11,7 +11,7 @@ export default function RootLayout() {
     <Stack  initialRouteName='(tabs)'>
       <Stack.Screen name='(tabs)' options={{ headerShown: false }}></Stack.Screen>
 
-      <Stack.Screen name='service-detail' options={{ headerShown: false }} ></Stack.Screen>
+      <Stack.Screen name='service-detail/[id]' options={{ headerShown: false }} ></Stack.Screen>
       <Stack.Screen name='help-support' options={{ headerShown: true }} ></Stack.Screen>
    
 

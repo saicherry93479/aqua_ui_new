@@ -109,7 +109,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (accessToken[1] && userProfile[1]) {
         const parsedUser = JSON.parse(userProfile[1]);
-        
+
         if (viewAsData[1]) {
           const parsedViewAs = JSON.parse(viewAsData[1]);
           setViewAsState(parsedViewAs);
@@ -395,7 +395,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         originalUser: null,
         currentViewRole: null,
       });
-      router.push('/(auth)')
+      router.replace('/(auth)');
     } catch (error) {
       console.log('Logout error:', error);
     } finally {
@@ -416,22 +416,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await apiService.get('/auth/me');
       console.log('response in refreshuser ', response);
-      
+
       if (response.success) {
         const updatedUser = {
           ...response.data.user,
           hasOnboarded: response.data.user.hasOnboarded,
         };
-        
+
         setUser(updatedUser);
-        
+
         // Update AsyncStorage with fresh user data
         await AsyncStorage.setItem('userProfile', JSON.stringify(updatedUser));
-        
+
         // Only navigate if we're not already on the right screen
         // Remove automatic navigation from refreshUser to prevent conflicts
         // Let the RootLayout handle navigation based on auth state
-        
+
       } else {
         throw new Error('Failed to refresh user data');
       }

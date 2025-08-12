@@ -158,8 +158,10 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
                     text: 'OK',
                     onPress: () => {
                         handleClose();
-                        // Fix: Use push instead of replace, and ensure the route exists
-                        router.push('/(connect)/(tabs)');
+                        // Navigate to connect tabs without stack issues
+                        setTimeout(() => {
+                            router.replace('/(connect)/(tabs)');
+                        }, 100);
                     }
                 }]
             );
@@ -203,8 +205,10 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
                         text: 'OK',
                         onPress: () => {
                             handleClose();
-                            // Fix: Use push instead of replace
-                            router.push('/(connect)/(tabs)');
+                            // Navigate to connect tabs without stack issues
+                            setTimeout(() => {
+                                router.replace('/(connect)/(tabs)');
+                            }, 100);
                         }
                     }]
                 );

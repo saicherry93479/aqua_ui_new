@@ -50,16 +50,27 @@ function useProtectedRoute(user: any, isLoading: boolean) {
     const inNewUserGroup = segments[0] === '(newuser)';
     const onInitialScreen = segments.includes('intialscreen');
 
+    console.log('Navigation debug:', { 
+      user: !!user, 
+      segments, 
+      inAuthGroup, 
+      inConnectGroup, 
+      inNewUserGroup, 
+      onInitialScreen 
+    });
+
     if (!user) {
       // User is not authenticated
-      if (!inAuthGroup && !inConnectGroup) {
+      if (!inAuthGroup) {
         // Redirect to auth if not already there
+        console.log('Redirecting to auth - user not authenticated');
         router.replace('/(auth)');
       }
     } else {
       // User is authenticated
-      if (inAuthGroup || inConnectGroup) {
+      if (inAuthGroup) {
         // Redirect authenticated user away from auth screens
+        console.log('Redirecting to initial screen - user authenticated');
         router.replace('/intialscreen');
       }
     }
