@@ -22,7 +22,7 @@ const AquaHomeOnboarding = () => {
     const { checkExistingSession } = useSubscription();
 
     useEffect(() => {
-        checkForExistingSubscriptionSession();
+        // checkForExistingSubscriptionSession();
     }, []);
 
     const checkForExistingSubscriptionSession = async () => {

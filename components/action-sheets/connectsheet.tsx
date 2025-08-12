@@ -18,17 +18,13 @@ import {
 import ActionSheet, { SheetManager } from 'react-native-actions-sheet';
 import { DynamicInput } from '../DynamicInput';
 
-
 interface LoginActionSheetProps {
     sheetId: string;
     payload?: {
         onConnect: (connectId: string, subscription?: any) => void;
-        customerPhone?: string; // Add customer phone to payload
+        customerPhone?: string;
     };
 }
-
-// API service function
-
 
 export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) {
     const [connectId, setConnectId] = useState('');
@@ -55,15 +51,24 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
             console.error('Error checking existing session:', error);
         }
     };
-    const handleClose = () => {
-        Keyboard.dismiss();
-        SheetManager.hide(sheetId);
-        // Reset state when closing
+
+    const resetComponentState = () => {
         setConnectId('');
         setIsLoading(false);
         setLoadingMessage('Connecting to account...');
         setShowSessionOptions(false);
         setExistingSession(null);
+    };
+
+    const handleClose = () => {
+        Keyboard.dismiss();
+        // Hide the sheet first, then reset state after a small delay
+        SheetManager.hide(sheetId);
+        
+        // Reset state after the sheet is hidden to prevent flash of content
+        setTimeout(() => {
+            resetComponentState();
+        }, 300); // Small delay to ensure sheet is fully hidden
     };
 
     const checkSubscription = async (connectId: string) => {
@@ -74,7 +79,7 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
             };
 
             const response = await apiService.post('/subscriptions/check', data);
-            console.log('response  for connect ', response)
+            console.log('response for connect ', response);
             return response.data;
         } catch (error) {
             console.error('Subscription check error:', error);
@@ -110,11 +115,8 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
             // Step 2: Check subscription
             setLoadingMessage('Verifying subscription...');
 
-            const subscriptionResult = await checkSubscription(
-                connectId.trim(),
-
-            );
-            console.log('subscriptionResult ', JSON.stringify(subscriptionResult))
+            const subscriptionResult = await checkSubscription(connectId.trim());
+            console.log('subscriptionResult ', JSON.stringify(subscriptionResult));
 
             if (!subscriptionResult.isValid) {
                 // Handle invalid subscription
@@ -126,8 +128,7 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
                             text: 'Contact Support',
                             onPress: () => {
                                 handleClose();
-                                // Add your support contact logic here
-                                router.push('/(newuser)/help-support')
+                                router.push('/(newuser)/help-support');
                             }
                         },
                         {
@@ -170,8 +171,6 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
             console.error('Connection/Subscription error:', error);
 
             let errorMessage = 'Failed to connect. Please try again.';
-
-
 
             Alert.alert(
                 'Connection Failed',
@@ -228,13 +227,18 @@ export function ConnectActionSheet({ sheetId, payload }: LoginActionSheetProps) 
 
     const handleNewSession = async () => {
         try {
+            setIsLoading(true);
             await endSession();
+            // Smoothly transition to connect form
             setShowSessionOptions(false);
             setExistingSession(null);
         } catch (error) {
             console.error('Error ending session:', error);
+        } finally {
+            setIsLoading(false);
         }
     };
+
     const isConnectDisabled = !connectId.trim() || isLoading || validateConnectId(connectId) !== null;
 
     return (
