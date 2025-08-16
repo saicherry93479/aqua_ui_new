@@ -20,7 +20,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.cherry93479.aquaHomeUi",
+      "package": "com.cherry93479.aquaHome",
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyDBFyJk1ZsnnqxLC43WT_-OSCFZaG0OaNM"
