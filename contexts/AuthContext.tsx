@@ -168,7 +168,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       console.log('=== OTP Sent Successfully ===');
       setConfirmation(confirmation);
-      return confirmation;
+      // return confirmation;
+
 
     } catch (error: any) {
       console.log('=== OTP Error ===');

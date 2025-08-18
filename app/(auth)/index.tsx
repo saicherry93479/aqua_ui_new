@@ -1,4 +1,4 @@
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth, UserRole } from '@/contexts/AuthContext';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
@@ -48,7 +48,7 @@ const AquaHomeLogin = () => {
   const handleRequestOTP = async () => {
     setIsLoading(true);
     try {
-      await sendOTP(phoneNumber);
+      await sendOTP(phoneNumber,UserRole.CUSTOMER);
       router.push({
         pathname: '/(auth)/otp',
         params: { phoneNumber: phoneNumber },
