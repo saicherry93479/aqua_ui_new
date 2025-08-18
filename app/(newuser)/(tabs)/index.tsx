@@ -82,7 +82,7 @@ const ProductCard = ({ product, onPress }) => {
                                     style={{
                                         fontFamily: 'PlusJakartaSans-ExtraBold',
                                         fontSize: 24,
-                                        color: '#22C55E',
+                                        color: '#254292',
                                     }}
                                 >
                                     ₹{product.rentPrice}

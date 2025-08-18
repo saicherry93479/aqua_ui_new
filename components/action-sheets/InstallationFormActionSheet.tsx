@@ -579,7 +579,7 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
               <View className="grow py-5">
                 {/* Header */}
                 <View className="mb-6">
-                  <Text
+                <Text
                     className="text-xl md:text-4xl text-center !leading-[30px] md:!leading-[46px] text-black"
                     style={{ fontFamily: 'PlusJakartaSans-Bold' }}
                   >
@@ -587,7 +587,7 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
                   </Text>
 
                   <View className="mt-2 flex-row items-center justify-center">
-                    <Shield size={18} color="#E0FF22" />
+                    <Shield size={18} color="#000" fill={'#000'} />
                     <Text
                       className="text-sm md:text-base font-normal text-center !leading-[21px] md:!leading-[24px] text-black ml-1"
                       style={{ fontFamily: 'PlusJakartaSans-Regular' }}
@@ -595,7 +595,7 @@ export function InstallationFormActionSheet({ sheetId, payload }: InstallationFo
                       We rent products{' '}
                       <Text
                         className="font-semibold"
-                        style={{ fontFamily: 'PlusJakartaSans-SemiBold', color: '#E0FF22' }}
+                        style={{ fontFamily: 'PlusJakartaSans-SemiBold', color: '#000' }}
                       >
                         trusted by thousands
                       </Text>
